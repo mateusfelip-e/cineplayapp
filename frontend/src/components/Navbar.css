@@ -1,0 +1,130 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 60px;
+  background-color: #0a0a0a;
+  border-bottom: 1px solid #1e1e1e;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.logo-cine { color: #ffffff; }
+.logo-play { color: #FFE000; }
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-links a {
+  color: #aaaaaa;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.nav-links a:hover,
+.nav-links a.ativo {
+  color: #ffffff;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.busca-container {
+  position: relative;
+}
+
+.busca-input {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 14px;
+  width: 220px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.busca-input:focus {
+  border-color: #FFE000;
+}
+
+.busca-resultados {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 300px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 200;
+}
+
+.busca-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.busca-item:hover { background: #2a2a2a; }
+
+.busca-item img {
+  width: 35px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.busca-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.busca-item span {
+  font-size: 13px;
+  color: #fff;
+}
+
+.busca-item small {
+  font-size: 11px;
+  color: #888;
+}
+
+.btn-adicionar {
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-adicionar:hover { opacity: 0.85; }

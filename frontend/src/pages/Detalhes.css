@@ -1,0 +1,166 @@
+.detalhes-pagina {
+  min-height: 100vh;
+}
+
+.detalhes-hero {
+  width: 100%;
+  height: 400px;
+  background-size: cover;
+  background-position: center top;
+  position: relative;
+}
+
+.detalhes-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(10,10,10,1));
+  display: flex;
+  align-items: flex-start;
+  padding: 24px 48px;
+}
+
+.btn-voltar {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.btn-voltar:hover { background: rgba(255,255,255,0.2); }
+
+.detalhes-conteudo {
+  display: flex;
+  gap: 40px;
+  padding: 0 48px;
+  margin-top: -120px;
+  position: relative;
+  z-index: 2;
+}
+
+.detalhes-poster-wrap {
+  flex-shrink: 0;
+}
+
+.detalhes-poster {
+  width: 200px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.detalhes-info {
+  flex: 1;
+  padding-top: 80px;
+}
+
+.detalhes-info h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.detalhes-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.detalhes-meta span {
+  font-size: 14px;
+  color: #ccc;
+  background: #1e1e1e;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.detalhes-sinopse h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #FFE000;
+}
+
+.detalhes-sinopse p {
+  font-size: 15px;
+  color: #ccc;
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+.detalhes-tagline {
+  color: #888;
+  font-style: italic;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.btn-adicionar-detalhe {
+  margin-top: 24px;
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-adicionar-detalhe:hover { opacity: 0.85; }
+.btn-adicionar-detalhe.adicionado {
+  background: #2a5a2a;
+  color: #fff;
+  cursor: default;
+}
+
+.detalhes-elenco {
+  padding: 32px 48px;
+}
+
+.detalhes-elenco h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFE000;
+  margin-bottom: 16px;
+}
+
+.elenco-lista {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ator-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100px;
+  gap: 6px;
+}
+
+.ator-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #333;
+}
+
+.ator-card span {
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+}
+
+.ator-card small {
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+}
