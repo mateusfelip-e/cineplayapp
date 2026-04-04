@@ -20,6 +20,7 @@
 .logo {
   font-size: 22px;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .logo-cine { color: #ffffff; }
@@ -125,6 +126,134 @@
   font-size: 14px;
   cursor: pointer;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 
 .btn-adicionar:hover { opacity: 0.85; }
+
+/* ── MENU HAMBURGUER ── */
+.menu-hamburguer {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+.menu-hamburguer span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* ── MENU MOBILE ── */
+.menu-mobile {
+  display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0a0a0a;
+  z-index: 99;
+  flex-direction: column;
+  padding: 24px;
+  gap: 8px;
+  border-top: 1px solid #1e1e1e;
+  overflow-y: auto;
+}
+
+.menu-mobile.aberto {
+  display: flex;
+}
+
+.menu-mobile a {
+  color: #aaa;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 14px 0;
+  border-bottom: 1px solid #1e1e1e;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.menu-mobile a:hover,
+.menu-mobile a.ativo {
+  color: #FFE000;
+}
+
+.menu-mobile .busca-mobile {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.menu-mobile .busca-mobile input {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.menu-mobile .busca-mobile input:focus {
+  border-color: #FFE000;
+}
+
+.menu-mobile .busca-mobile button {
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-mobile .btn-adicionar-mobile {
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.busca-resultados-mobile {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+/* ── RESPONSIVO ── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .navbar-right {
+    display: none;
+  }
+
+  .menu-hamburguer {
+    display: flex;
+  }
+}

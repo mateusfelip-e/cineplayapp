@@ -1,3 +1,4 @@
+import Loading from '../components/Loading'
 import { useState, useEffect } from 'react'
 import { buscarConteudo } from '../services/api'
 import axios from 'axios'

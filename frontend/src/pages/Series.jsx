@@ -1,3 +1,4 @@
+import Loading from '../components/Loading'
 import { useState, useEffect } from 'react'
 import { getBiblioteca } from '../services/api'
 import Card from '../components/Card'

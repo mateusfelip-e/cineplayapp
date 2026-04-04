@@ -8,6 +8,9 @@ function Navbar() {
   const [busca, setBusca] = useState('')
   const [resultados, setResultados] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
+  const [menuAberto, setMenuAberto] = useState(false)
+  const [buscaMobile, setBuscaMobile] = useState('')
+  const [resultadosMobile, setResultadosMobile] = useState([])
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -21,30 +24,45 @@ function Navbar() {
     } catch { setResultados([]) }
   }
 
-const handleClicarResultado = (item) => {
-  setResultados([])
-  setBusca('')
-  const tipo = item.media_type === 'movie' ? 'filme' : 'serie'
-  navigate(`/detalhes/${tipo}/${item.id}`)
-}
-
-const handleAdicionarManual = async (dados) => {
-  try {
-    await adicionarBiblioteca(dados)
-    setModalAberto(false)
-    alert('Adicionado com sucesso!')
-  } catch {
-    alert('Erro ao adicionar!')
+  const handleBuscaMobile = async (e) => {
+    const valor = e.target.value
+    setBuscaMobile(valor)
+    if (valor.length < 2) { setResultadosMobile([]); return }
+    try {
+      const res = await buscarConteudo(valor)
+      setResultadosMobile(res.data.results?.filter(i => i.media_type !== 'person').slice(0, 6) || [])
+    } catch { setResultadosMobile([]) }
   }
-}
+
+  const handleClicarResultado = (item) => {
+    setResultados([])
+    setResultadosMobile([])
+    setBusca('')
+    setBuscaMobile('')
+    setMenuAberto(false)
+    const tipo = item.media_type === 'movie' ? 'filme' : 'serie'
+    navigate(`/detalhes/${tipo}/${item.id}`)
+  }
+
+  const handleAdicionarManual = async (dados) => {
+    try {
+      await adicionarBiblioteca(dados)
+      setModalAberto(false)
+      alert('Adicionado com sucesso!')
+    } catch {
+      alert('Erro ao adicionar!')
+    }
+  }
 
   const isAtivo = (path) => location.pathname === path
+
+  const fecharMenu = () => setMenuAberto(false)
 
   return (
     <>
       <nav className="navbar">
         <div className="navbar-left">
-          <Link to="/" className="logo">
+          <Link to="/" className="logo" onClick={fecharMenu}>
             <span className="logo-cine">Cine</span>
             <span className="logo-play">Play</span>
           </Link>
@@ -57,6 +75,7 @@ const handleAdicionarManual = async (dados) => {
             <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''}>♡ Favoritos</Link>
           </div>
         </div>
+
         <div className="navbar-right">
           <div className="busca-container">
             <input
@@ -69,11 +88,7 @@ const handleAdicionarManual = async (dados) => {
             {resultados.length > 0 && (
               <div className="busca-resultados">
                 {resultados.map(item => (
-                  <div
-                    key={item.id}
-                    className="busca-item"
-                    onClick={() => handleClicarResultado(item)}
-                  >
+                  <div key={item.id} className="busca-item" onClick={() => handleClicarResultado(item)}>
                     {item.poster_path && (
                       <img src={`https://image.tmdb.org/t/p/w45${item.poster_path}`} alt="" />
                     )}
@@ -90,7 +105,54 @@ const handleAdicionarManual = async (dados) => {
             + Adicionar
           </button>
         </div>
+
+        {/* Botão hamburguer mobile */}
+        <button className="menu-hamburguer" onClick={() => setMenuAberto(!menuAberto)}>
+          <span />
+          <span />
+          <span />
+        </button>
       </nav>
+
+      {/* Menu Mobile */}
+      <div className={`menu-mobile ${menuAberto ? 'aberto' : ''}`}>
+        <Link to="/" className={isAtivo('/') ? 'ativo' : ''} onClick={fecharMenu}>Início</Link>
+        <Link to="/explorar" className={isAtivo('/explorar') ? 'ativo' : ''} onClick={fecharMenu}>Explorar</Link>
+        <Link to="/lancamentos" className={isAtivo('/lancamentos') ? 'ativo' : ''} onClick={fecharMenu}>Lançamentos</Link>
+        <Link to="/filmes" className={isAtivo('/filmes') ? 'ativo' : ''} onClick={fecharMenu}>Filmes</Link>
+        <Link to="/series" className={isAtivo('/series') ? 'ativo' : ''} onClick={fecharMenu}>Séries</Link>
+        <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''} onClick={fecharMenu}>♡ Favoritos</Link>
+
+        <div className="busca-mobile">
+          <input
+            type="text"
+            placeholder="Buscar filmes e séries..."
+            value={buscaMobile}
+            onChange={handleBuscaMobile}
+          />
+          <button onClick={() => {}}>🔍</button>
+        </div>
+
+        {resultadosMobile.length > 0 && (
+          <div className="busca-resultados-mobile">
+            {resultadosMobile.map(item => (
+              <div key={item.id} className="busca-item" onClick={() => handleClicarResultado(item)}>
+                {item.poster_path && (
+                  <img src={`https://image.tmdb.org/t/p/w45${item.poster_path}`} alt="" />
+                )}
+                <div>
+                  <span>{item.title || item.name}</span>
+                  <small>{item.media_type === 'movie' ? 'Filme' : 'Série'} • {(item.release_date || item.first_air_date || '').slice(0, 4)}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button className="btn-adicionar-mobile" onClick={() => { setModalAberto(true); fecharMenu() }}>
+          + Adicionar à Biblioteca
+        </button>
+      </div>
 
       {modalAberto && (
         <Modal

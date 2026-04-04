@@ -1,3 +1,4 @@
+import Loading from '../components/Loading'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getDetalhes, adicionarBiblioteca } from '../services/api'
@@ -36,7 +37,7 @@ function Detalhes() {
     } catch { alert('Erro ao adicionar!') }
   }
 
-  if (carregando) return <div className="carregando">Carregando...</div>
+  if (carregando) return <Loading />
   if (!item) return <div className="carregando">Item não encontrado.</div>
 
   const titulo = item.title || item.name

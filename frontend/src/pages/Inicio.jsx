@@ -1,3 +1,4 @@
+import Loading from '../components/Loading'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getLancamentos, getFilmesPopulares, getSeriesPopulares, adicionarBiblioteca, getBiblioteca } from '../services/api'
@@ -25,7 +26,6 @@ function Inicio() {
           getSeriesPopulares(),
           getBiblioteca()
         ])
-
         const lanc = resLanc.data.results || []
         setLancamentos(lanc.slice(0, 8))
         setFilmes(resFilmes.data.results || [])
@@ -63,13 +63,13 @@ function Inicio() {
     } catch { alert('Erro ao adicionar!') }
   }
 
-  if (carregando) return <div className="carregando">Carregando...</div>
+  if (carregando) return <Loading />
 
   const destaque = lancamentos[indiceAtual]
 
   return (
     <div className="pagina">
-      {destaque && (
+      {destaque && destaque.backdrop_path && (
         <div
           className="hero"
           style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${destaque.backdrop_path})` }}
