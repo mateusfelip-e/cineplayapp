@@ -1,17 +1,27 @@
 import { useState, useEffect } from 'react'
-import { getLancamentos } from '../services/api'
+import axios from 'axios'
 import Card from '../components/Card'
+import CardSlider from '../components/CardSlider'
 import './Paginas.css'
 
+const api = axios.create({ baseURL: 'http://localhost:3001/api' })
+const ANOS = [2026, 2025, 2024, 2023]
+
 function Lancamentos() {
-  const [lancamentos, setLancamentos] = useState([])
+  const [lancamentosPorAno, setLancamentosPorAno] = useState({})
   const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
     const carregar = async () => {
       try {
-        const res = await getLancamentos()
-        setLancamentos(res.data.results || [])
+        const resultados = await Promise.all(
+          ANOS.map(ano => api.get(`/filmes/lancamentos/${ano}`))
+        )
+        const dados = {}
+        ANOS.forEach((ano, i) => {
+          dados[ano] = resultados[i].data.results || []
+        })
+        setLancamentosPorAno(dados)
       } catch (err) { console.error(err) }
       setCarregando(false)
     }
@@ -22,14 +32,18 @@ function Lancamentos() {
 
   return (
     <div className="pagina">
-      <div className="secao">
-        <h2>🎬 Lançamentos</h2>
-        <div className="lista-cards">
-          {lancamentos.map(filme => (
-            <Card key={filme.id} item={filme} tipo="movie" />
-          ))}
+      {ANOS.map(ano => (
+        <div className="secao" key={ano}>
+          <h2>
+            {ano === 2026 ? '🔥 Em Cartaz —' : '📅'} {ano}
+          </h2>
+          <CardSlider>
+            {(lancamentosPorAno[ano] || []).map(filme => (
+              <Card key={filme.id} item={filme} tipo="movie" />
+            ))}
+          </CardSlider>
         </div>
-      </div>
+      ))}
     </div>
   )
 }

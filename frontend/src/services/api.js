@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 // TMDB
-export const buscarConteudo = (query) => api.get(`/buscar?query=${query}`);
+export const buscarConteudo = (query, page = 1) => api.get(`/buscar?query=${query}&page=${page}`);
 export const getFilmesPopulares = () => api.get('/filmes/populares');
 export const getSeriesPopulares = () => api.get('/series/populares');
 export const getLancamentos = () => api.get('/filmes/lancamentos');

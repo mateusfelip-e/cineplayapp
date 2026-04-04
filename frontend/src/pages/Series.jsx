@@ -26,7 +26,6 @@ function Series() {
     <div className="pagina">
       <div className="secao">
         <h2>📺 Minhas Séries</h2>
-
         <div className="filtros">
           {['todos', 'quero_ver', 'assistindo', 'assistido'].map(f => (
             <button
@@ -38,7 +37,6 @@ function Series() {
             </button>
           ))}
         </div>
-
         {filtrados.length === 0 ? (
           <p className="sem-resultados">Nenhuma série aqui ainda. Explore e adicione séries à sua biblioteca!</p>
         ) : (

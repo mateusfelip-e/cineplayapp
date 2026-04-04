@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { adicionarBiblioteca, removerItem, favoritarItem, atualizarItem } from '../services/api'
+import { useBiblioteca } from '../BibliotecaContext'
 import Modal from './Modal'
 import './Card.css'
 
@@ -7,6 +9,9 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
   const [hover, setHover] = useState(false)
   const [carregando, setCarregando] = useState(false)
   const [modalEditar, setModalEditar] = useState(false)
+  const [animacao, setAnimacao] = useState(null)
+  const { jaAdicionado, recarregar } = useBiblioteca()
+  const navigate = useNavigate()
 
   const poster = item.poster_path
     ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
@@ -14,12 +19,23 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
 
   const titulo = item.title || item.name || item.titulo
   const ano = (item.release_date || item.first_air_date || item.ano || '').toString().slice(0, 4)
+  const tmdbId = item.id || item.tmdb_id
+  const estaAdicionado = !daBiblioteca && jaAdicionado(tmdbId)
 
-  const handleAdicionar = async () => {
+  const handleClicarPoster = () => {
+    const tipoRota = tipo === 'movie' || item.tipo === 'filme' ? 'filme' : 'serie'
+    const id = item.tmdb_id || item.id
+    navigate(`/detalhes/${tipoRota}/${id}`)
+  }
+
+  const handleAdicionar = async (e) => {
+    e.stopPropagation()
+    if (estaAdicionado || carregando) return
+    setAnimacao('adicionando')
     setCarregando(true)
     try {
       await adicionarBiblioteca({
-        tmdb_id: item.id || item.tmdb_id,
+        tmdb_id: tmdbId,
         tipo: tipo === 'movie' ? 'filme' : 'serie',
         titulo,
         ano: parseInt(ano),
@@ -27,25 +43,30 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
         sinopse: item.overview || item.sinopse || '',
         status: 'quero_ver'
       })
+      await recarregar()
       if (onAtualizar) onAtualizar()
-      alert('Adicionado à biblioteca!')
     } catch { alert('Erro ao adicionar!') }
+    setTimeout(() => setAnimacao(null), 800)
     setCarregando(false)
   }
 
-  const handleRemover = async () => {
+  const handleRemover = async (e) => {
+    e.stopPropagation()
     if (!confirm('Remover da biblioteca?')) return
     setCarregando(true)
     try {
       await removerItem(item.id)
+      await recarregar()
       if (onAtualizar) onAtualizar()
     } catch { alert('Erro ao remover!') }
     setCarregando(false)
   }
 
-  const handleFavoritar = async () => {
+  const handleFavoritar = async (e) => {
+    e.stopPropagation()
     try {
       await favoritarItem(item.id, !item.favorito)
+      await recarregar()
       if (onAtualizar) onAtualizar()
     } catch { }
   }
@@ -54,6 +75,7 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     try {
       await atualizarItem(item.id, { status: dados.status, favorito: dados.favorito })
       setModalEditar(false)
+      await recarregar()
       if (onAtualizar) onAtualizar()
     } catch { alert('Erro ao editar!') }
   }
@@ -61,22 +83,41 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
   return (
     <>
       <div
-        className="card"
+        className={`card ${estaAdicionado ? 'card-ja-adicionado' : ''} ${animacao === 'adicionando' ? 'card-anim-adicionar' : ''}`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
-        <div className="card-img-wrapper">
+        <div className="card-img-wrapper" onClick={handleClicarPoster} style={{ cursor: 'pointer' }}>
           <img src={poster} alt={titulo} className="card-poster" />
+
+          {animacao === 'adicionando' && (
+            <div className="card-anim-overlay adicionar">
+              <div className="particulas">
+                {[...Array(12)].map((_, i) => <span key={i} className="particula" />)}
+              </div>
+              <span className="anim-texto">✓</span>
+            </div>
+          )}
+
+          {estaAdicionado && animacao !== 'adicionando' && (
+            <div className="card-badge-adicionado">
+              <span>✓ Na Biblioteca</span>
+            </div>
+          )}
+
           {daBiblioteca && (
             <button
+              key={item.favorito ? 'fav' : 'nao-fav'}
               className={`btn-favorito ${item.favorito ? 'favoritado' : ''}`}
               onClick={handleFavoritar}
             >♡</button>
           )}
+
           {item.status && (
             <span className="card-status">{item.status.replace('_', ' ').toUpperCase()}</span>
           )}
-          {hover && !daBiblioteca && (
+
+          {hover && !daBiblioteca && !estaAdicionado && (
             <div className="card-overlay">
               <button className="btn-overlay" onClick={handleAdicionar} disabled={carregando}>
                 {carregando ? '...' : '+ Adicionar'}
@@ -84,13 +125,20 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
             </div>
           )}
         </div>
-        <div className="card-info">
+
+        <div className="card-info" onClick={handleClicarPoster} style={{ cursor: 'pointer' }}>
           <h4>{titulo}</h4>
-          <span>{ano}</span>
+          <div className="card-info-bottom">
+            <span>{ano}</span>
+            {estaAdicionado && (
+              <span className="card-tag-biblioteca">✓ Biblioteca</span>
+            )}
+          </div>
         </div>
+
         {daBiblioteca && (
           <div className="card-acoes">
-            <button className="btn-editar" onClick={() => setModalEditar(true)}>✏️ Editar</button>
+            <button className="btn-editar" onClick={(e) => { e.stopPropagation(); setModalEditar(true) }}>✏️ Editar</button>
             <button className="btn-remover" onClick={handleRemover} disabled={carregando}>🗑</button>
           </div>
         )}

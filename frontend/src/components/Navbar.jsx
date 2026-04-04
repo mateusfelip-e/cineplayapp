@@ -21,22 +21,22 @@ function Navbar() {
     } catch { setResultados([]) }
   }
 
- const handleClicarResultado = (item) => {
+const handleClicarResultado = (item) => {
   setResultados([])
   setBusca('')
   const tipo = item.media_type === 'movie' ? 'filme' : 'serie'
   navigate(`/detalhes/${tipo}/${item.id}`)
 }
 
-  const handleAdicionarManual = async (dados) => {
-    try {
-      await adicionarBiblioteca(dados)
-      setModalAberto(false)
-      alert('Adicionado com sucesso!')
-    } catch {
-      alert('Erro ao adicionar!')
-    }
+const handleAdicionarManual = async (dados) => {
+  try {
+    await adicionarBiblioteca(dados)
+    setModalAberto(false)
+    alert('Adicionado com sucesso!')
+  } catch {
+    alert('Erro ao adicionar!')
   }
+}
 
   const isAtivo = (path) => location.pathname === path
 

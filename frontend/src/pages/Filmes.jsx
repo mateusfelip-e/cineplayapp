@@ -26,7 +26,6 @@ function Filmes() {
     <div className="pagina">
       <div className="secao">
         <h2>🎬 Meus Filmes</h2>
-
         <div className="filtros">
           {['todos', 'quero_ver', 'assistindo', 'assistido'].map(f => (
             <button
@@ -38,7 +37,6 @@ function Filmes() {
             </button>
           ))}
         </div>
-
         {filtrados.length === 0 ? (
           <p className="sem-resultados">Nenhum filme aqui ainda. Explore e adicione filmes à sua biblioteca!</p>
         ) : (

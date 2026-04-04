@@ -29,11 +29,9 @@ function Favoritos() {
     <div className="pagina">
       <div className="secao">
         <h2>♡ Favoritos</h2>
-
         {vazio && (
           <p className="sem-resultados">Nenhum favorito ainda. Adicione filmes e séries à sua biblioteca e marque como favorito!</p>
         )}
-
         {filmes.length > 0 && (
           <div style={{ marginBottom: 32 }}>
             <h3 className="subtitulo-secao">🎬 Filmes Favoritos</h3>
@@ -44,7 +42,6 @@ function Favoritos() {
             </CardSlider>
           </div>
         )}
-
         {series.length > 0 && (
           <div>
             <h3 className="subtitulo-secao">📺 Séries Favoritas</h3>

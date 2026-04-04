@@ -2,9 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
+import { BibliotecaProvider } from './BibliotecaContext.jsx'
 import './index.css'
 
-// Efeito de luz premium seguindo o mouse
 const glow = document.createElement('div')
 glow.id = 'mouse-glow'
 document.body.appendChild(glow)
@@ -17,7 +17,9 @@ document.addEventListener('mousemove', (e) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <BibliotecaProvider>
+        <App />
+      </BibliotecaProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

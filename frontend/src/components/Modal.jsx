@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { buscarConteudo } from '../services/api'
+import { useBiblioteca } from '../BibliotecaContext'
 import './Modal.css'
 
 function Modal({ onFechar, onSalvar, itemEditar }) {
@@ -9,12 +10,13 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
   const [selecionado, setSelecionado] = useState(null)
   const [status, setStatus] = useState(itemEditar?.status || 'quero_ver')
   const [favorito, setFavorito] = useState(itemEditar?.favorito || false)
+  const { jaAdicionado } = useBiblioteca()
 
-  // Manual
   const [titulo, setTitulo] = useState(itemEditar?.titulo || '')
   const [ano, setAno] = useState(itemEditar?.ano || '')
   const [tipo, setTipo] = useState(itemEditar?.tipo || 'filme')
   const [sinopse, setSinopse] = useState(itemEditar?.sinopse || '')
+  const [posterUrl, setPosterUrl] = useState(itemEditar?.poster_url || '')
 
   const handleBuscar = async () => {
     if (!query.trim()) return
@@ -25,14 +27,17 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
   }
 
   const handleSelecionarResultado = (item) => {
+    if (jaAdicionado(item.id)) return
     setSelecionado(item)
     setResultados([])
     setQuery(item.title || item.name)
+    setStatus('quero_ver')
+    setFavorito(false)
   }
 
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     if (aba === 'buscar' && selecionado) {
-      onSalvar({
+      await onSalvar({
         tmdb_id: selecionado.id,
         tipo: selecionado.media_type === 'movie' ? 'filme' : 'serie',
         titulo: selecionado.title || selecionado.name,
@@ -42,14 +47,19 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
         status,
         favorito
       })
+      setSelecionado(null)
+      setQuery('')
+      setResultados([])
+      setStatus('quero_ver')
+      setFavorito(false)
     } else if (aba === 'manual') {
       if (!titulo.trim()) { alert('Digite o título!'); return }
-      onSalvar({
+      await onSalvar({
         tmdb_id: itemEditar?.tmdb_id || 0,
         tipo,
         titulo,
         ano: parseInt(ano) || null,
-        poster_url: itemEditar?.poster_url || '',
+        poster_url: posterUrl || itemEditar?.poster_url || '',
         sinopse,
         status,
         favorito,
@@ -68,12 +78,8 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
 
         {!itemEditar && (
           <div className="modal-abas">
-            <button className={aba === 'buscar' ? 'ativo' : ''} onClick={() => setAba('buscar')}>
-              🔍 Buscar
-            </button>
-            <button className={aba === 'manual' ? 'ativo' : ''} onClick={() => setAba('manual')}>
-              ✏️ Manual
-            </button>
+            <button className={aba === 'buscar' ? 'ativo' : ''} onClick={() => setAba('buscar')}>🔍 Buscar</button>
+            <button className={aba === 'manual' ? 'ativo' : ''} onClick={() => setAba('manual')}>✏️ Manual</button>
           </div>
         )}
 
@@ -89,21 +95,33 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
               />
               <button onClick={handleBuscar}>Buscar</button>
             </div>
+
             {resultados.length > 0 && (
               <div className="modal-resultados">
-                {resultados.map(item => (
-                  <div key={item.id} className="modal-resultado-item" onClick={() => handleSelecionarResultado(item)}>
-                    {item.poster_path && (
-                      <img src={`https://image.tmdb.org/t/p/w45${item.poster_path}`} alt="" />
-                    )}
-                    <div>
-                      <span>{item.title || item.name}</span>
-                      <small>{item.media_type === 'movie' ? 'Filme' : 'Série'} • {(item.release_date || item.first_air_date || '').slice(0, 4)}</small>
+                {resultados.map(item => {
+                  const adicionado = jaAdicionado(item.id)
+                  return (
+                    <div
+                      key={item.id}
+                      className={`modal-resultado-item ${adicionado ? 'ja-adicionado' : ''}`}
+                      onClick={() => handleSelecionarResultado(item)}
+                    >
+                      {item.poster_path && (
+                        <img src={`https://image.tmdb.org/t/p/w45${item.poster_path}`} alt="" />
+                      )}
+                      <div className="modal-resultado-info">
+                        <span>{item.title || item.name}</span>
+                        <small>{item.media_type === 'movie' ? 'Filme' : 'Série'} • {(item.release_date || item.first_air_date || '').slice(0, 4)}</small>
+                      </div>
+                      {adicionado && (
+                        <span className="modal-tag-adicionado">✓ Na Biblioteca</span>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
+
             {selecionado && (
               <div className="modal-selecionado">
                 ✅ <strong>{selecionado.title || selecionado.name}</strong> selecionado
@@ -115,7 +133,12 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
         {(aba === 'manual' || itemEditar) && (
           <div className="modal-form">
             <label>Título *</label>
-            <input type="text" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Ex: Inception" />
+            <input
+              type="text"
+              value={titulo}
+              onChange={e => setTitulo(e.target.value)}
+              placeholder="Ex: Inception"
+            />
 
             <label>Tipo</label>
             <select value={tipo} onChange={e => setTipo(e.target.value)}>
@@ -124,10 +147,39 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
             </select>
 
             <label>Ano</label>
-            <input type="number" value={ano} onChange={e => setAno(e.target.value)} placeholder="Ex: 2024" />
+            <input
+              type="number"
+              value={ano}
+              onChange={e => setAno(e.target.value)}
+              placeholder="Ex: 2024"
+            />
+
+            <label>URL do Pôster</label>
+            <input
+              type="text"
+              value={posterUrl}
+              onChange={e => setPosterUrl(e.target.value)}
+              placeholder="https://exemplo.com/poster.jpg"
+            />
+
+            {posterUrl && (
+              <div className="modal-poster-preview">
+                <img
+                  src={posterUrl}
+                  alt="Preview do pôster"
+                  onError={e => { e.target.style.display = 'none' }}
+                />
+                <small>Preview do pôster</small>
+              </div>
+            )}
 
             <label>Sinopse</label>
-            <textarea value={sinopse} onChange={e => setSinopse(e.target.value)} placeholder="Descrição..." rows={3} />
+            <textarea
+              value={sinopse}
+              onChange={e => setSinopse(e.target.value)}
+              placeholder="Descrição..."
+              rows={3}
+            />
           </div>
         )}
 
@@ -140,14 +192,22 @@ function Modal({ onFechar, onSalvar, itemEditar }) {
           </select>
 
           <label className="modal-favorito">
-            <input type="checkbox" checked={favorito} onChange={e => setFavorito(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={favorito}
+              onChange={e => setFavorito(e.target.checked)}
+            />
             ♡ Marcar como favorito
           </label>
         </div>
 
         <div className="modal-footer">
           <button className="btn-cancelar" onClick={onFechar}>Cancelar</button>
-          <button className="btn-salvar" onClick={handleSalvar}>
+          <button
+            className="btn-salvar"
+            onClick={handleSalvar}
+            disabled={aba === 'buscar' && !selecionado}
+          >
             {itemEditar ? 'Salvar alterações' : 'Adicionar'}
           </button>
         </div>

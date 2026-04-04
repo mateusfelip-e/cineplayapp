@@ -33,8 +33,8 @@ const tmdb = axios.create({
 // Buscar filmes/séries pelo nome
 app.get('/api/buscar', async (req, res) => {
   try {
-    const { query, tipo = 'multi' } = req.query;
-    const response = await tmdb.get(`/search/${tipo}`, { params: { query } });
+    const { query, tipo = 'multi', page = 1 } = req.query;
+    const response = await tmdb.get(`/search/${tipo}`, { params: { query, page } });
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar no TMDB' });
@@ -44,7 +44,8 @@ app.get('/api/buscar', async (req, res) => {
 // Filmes populares
 app.get('/api/filmes/populares', async (req, res) => {
   try {
-    const response = await tmdb.get('/movie/popular');
+    const { page = 1 } = req.query;
+    const response = await tmdb.get('/movie/popular', { params: { page } });
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar filmes populares' });
@@ -54,7 +55,8 @@ app.get('/api/filmes/populares', async (req, res) => {
 // Séries populares
 app.get('/api/series/populares', async (req, res) => {
   try {
-    const response = await tmdb.get('/tv/popular');
+    const { page = 1 } = req.query;
+    const response = await tmdb.get('/tv/popular', { params: { page } });
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar séries populares' });
@@ -68,6 +70,23 @@ app.get('/api/filmes/lancamentos', async (req, res) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar lançamentos' });
+  }
+});
+
+// Lançamentos por ano específico
+app.get('/api/filmes/lancamentos/:ano', async (req, res) => {
+  try {
+    const { ano } = req.params;
+    const response = await tmdb.get('/discover/movie', {
+      params: {
+        primary_release_year: ano,
+        sort_by: 'popularity.desc',
+        page: 1
+      }
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar lançamentos por ano' });
   }
 });
 
@@ -101,17 +120,31 @@ app.get('/api/biblioteca', async (req, res) => {
   }
 });
 
-// Adicionar à biblioteca
+// Adicionar à biblioteca (sem duplicatas)
 app.post('/api/biblioteca', async (req, res) => {
   try {
     const { tmdb_id, tipo, titulo, ano, poster_url, sinopse, status } = req.body;
+
+    // Verificar se já existe
+    const { data: existente } = await supabase
+      .from('biblioteca')
+      .select('id')
+      .eq('tmdb_id', tmdb_id)
+      .single();
+
+    if (existente) {
+      return res.status(409).json({ erro: 'Item já está na biblioteca', jaExiste: true });
+    }
+
     const { data, error } = await supabase
       .from('biblioteca')
       .insert([{ tmdb_id, tipo, titulo, ano, poster_url, sinopse, status }])
       .select();
+
     if (error) throw error;
     res.json(data[0]);
   } catch (error) {
+    if (error.jaExiste) return;
     res.status(500).json({ erro: 'Erro ao adicionar à biblioteca' });
   }
 });

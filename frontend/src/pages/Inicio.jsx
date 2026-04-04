@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getLancamentos, getFilmesPopulares, getSeriesPopulares, adicionarBiblioteca } from '../services/api'
+import { getLancamentos, getFilmesPopulares, getSeriesPopulares, adicionarBiblioteca, getBiblioteca } from '../services/api'
 import Card from '../components/Card'
 import CardSlider from '../components/CardSlider'
 import './Paginas.css'
@@ -9,6 +9,7 @@ function Inicio() {
   const [lancamentos, setLancamentos] = useState([])
   const [filmes, setFilmes] = useState([])
   const [series, setSeries] = useState([])
+  const [ultimosAdicionados, setUltimosAdicionados] = useState([])
   const [indiceAtual, setIndiceAtual] = useState(0)
   const [carregando, setCarregando] = useState(true)
   const [adicionado, setAdicionado] = useState(false)
@@ -18,17 +19,18 @@ function Inicio() {
   useEffect(() => {
     const carregar = async () => {
       try {
-        const [resLanc, resFilmes, resSeries] = await Promise.all([
+        const [resLanc, resFilmes, resSeries, resBib] = await Promise.all([
           getLancamentos(),
           getFilmesPopulares(),
-          getSeriesPopulares()
+          getSeriesPopulares(),
+          getBiblioteca()
         ])
-        const lanc2026 = resLanc.data.results?.filter(f =>
-          (f.release_date || '').startsWith('2026') || (f.release_date || '').startsWith('2025')
-        ) || resLanc.data.results || []
-        setLancamentos(lanc2026.slice(0, 8))
+
+        const lanc = resLanc.data.results || []
+        setLancamentos(lanc.slice(0, 8))
         setFilmes(resFilmes.data.results || [])
         setSeries(resSeries.data.results || [])
+        setUltimosAdicionados(resBib.data.slice(0, 10))
       } catch (err) { console.error(err) }
       setCarregando(false)
     }
@@ -68,7 +70,10 @@ function Inicio() {
   return (
     <div className="pagina">
       {destaque && (
-        <div className="hero" style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${destaque.backdrop_path})` }}>
+        <div
+          className="hero"
+          style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${destaque.backdrop_path})` }}
+        >
           <div className="hero-overlay">
             <div className="hero-conteudo">
               <div className="hero-badge">🎬 Em Cartaz</div>
@@ -83,7 +88,10 @@ function Inicio() {
                 >
                   {adicionado ? '✅ Adicionado' : '+ Adicionar à Biblioteca'}
                 </button>
-                <button className="btn-hero-detalhes" onClick={() => navigate(`/detalhes/filme/${destaque.id}`)}>
+                <button
+                  className="btn-hero-detalhes"
+                  onClick={() => navigate(`/detalhes/filme/${destaque.id}`)}
+                >
                   Ver Detalhes
                 </button>
               </div>
@@ -98,6 +106,17 @@ function Inicio() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {ultimosAdicionados.length > 0 && (
+        <div className="secao">
+          <h2>🕐 Últimos Adicionados</h2>
+          <CardSlider>
+            {ultimosAdicionados.map(item => (
+              <Card key={item.id} item={item} daBiblioteca onAtualizar={() => {}} />
+            ))}
+          </CardSlider>
         </div>
       )}
 
