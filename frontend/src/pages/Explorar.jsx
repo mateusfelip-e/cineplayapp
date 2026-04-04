@@ -5,7 +5,7 @@ import Card from '../components/Card'
 import CardSlider from '../components/CardSlider'
 import './Paginas.css'
 
-const api = axios.create({ baseURL: 'http://localhost:3001/api' })
+const api = axios.create({ baseURL: 'https://cineplay-backend-sdlj.onrender.com/api' })
 
 function Explorar() {
   const [query, setQuery] = useState('')
