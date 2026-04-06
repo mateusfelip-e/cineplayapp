@@ -17,25 +17,38 @@ function Inicio() {
   const navigate = useNavigate()
   const intervalRef = useRef(null)
 
-  useEffect(() => {
-    const carregar = async () => {
-      try {
-        const [resLanc, resFilmes, resSeries, resBib] = await Promise.all([
-          getLancamentos(),
-          getFilmesPopulares(),
-          getSeriesPopulares(),
-          getBiblioteca()
-        ])
-        const lanc = resLanc.data.results || []
-        setLancamentos(lanc.slice(0, 8))
-        setFilmes(resFilmes.data.results || [])
-        setSeries(resSeries.data.results || [])
-        setUltimosAdicionados(resBib.data.slice(0, 10))
-      } catch (err) { console.error(err) }
-      setCarregando(false)
-    }
-    carregar()
-  }, [])
+ useEffect(() => {
+  const carregar = async () => {
+    try {
+      const hoje = new Date().toISOString().slice(0, 10)
+      const cacheKey = `lancamentos_${hoje}`
+      const cached = localStorage.getItem(cacheKey)
+
+      let lancamentosData
+      if (cached) {
+        lancamentosData = JSON.parse(cached)
+      } else {
+        localStorage.clear()
+        const resLanc = await getLancamentos()
+        lancamentosData = resLanc.data.results || []
+        localStorage.setItem(cacheKey, JSON.stringify(lancamentosData))
+      }
+
+      const [resFilmes, resSeries, resBib] = await Promise.all([
+        getFilmesPopulares(),
+        getSeriesPopulares(),
+        getBiblioteca()
+      ])
+
+      setLancamentos(lancamentosData.slice(0, 8))
+      setFilmes(resFilmes.data.results || [])
+      setSeries(resSeries.data.results || [])
+      setUltimosAdicionados(resBib.data.slice(0, 10))
+    } catch (err) { console.error(err) }
+    setCarregando(false)
+  }
+  carregar()
+}, [])
 
   useEffect(() => {
     if (lancamentos.length === 0) return

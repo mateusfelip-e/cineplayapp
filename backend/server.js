@@ -63,32 +63,32 @@ app.get('/api/series/populares', async (req, res) => {
   }
 });
 
-// Lançamentos de filmes
+// Lançamentos de filmes (agora em cartaz)
 app.get('/api/filmes/lancamentos', async (req, res) => {
   try {
-    const response = await tmdb.get('/movie/now_playing');
-    res.json(response.data);
+    const response = await tmdb.get('/movie/now_playing')
+    res.json(response.data)
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar lançamentos' });
+    res.status(500).json({ erro: 'Erro ao buscar lançamentos' })
   }
-});
+})
 
 // Lançamentos por ano específico
 app.get('/api/filmes/lancamentos/:ano', async (req, res) => {
   try {
-    const { ano } = req.params;
+    const { ano } = req.params
     const response = await tmdb.get('/discover/movie', {
       params: {
         primary_release_year: ano,
         sort_by: 'popularity.desc',
         page: 1
       }
-    });
-    res.json(response.data);
+    })
+    res.json(response.data)
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar lançamentos por ano' });
+    res.status(500).json({ erro: 'Erro ao buscar lançamentos por ano' })
   }
-});
+})
 
 // Detalhes de um filme ou série
 app.get('/api/detalhes/:tipo/:id', async (req, res) => {
@@ -197,6 +197,11 @@ app.put('/api/biblioteca/:id/favorito', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao favoritar item' });
   }
 });
+
+// Rota de ping para manter servidor acordado
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
 
 // ─── INICIAR SERVIDOR ─────────────────────────────────
 const PORT = process.env.PORT || 3001;
