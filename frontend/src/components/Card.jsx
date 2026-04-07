@@ -50,17 +50,16 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     setCarregando(false)
   }
 
-  const handleRemover = async (e) => {
-    e.stopPropagation()
-    if (!confirm('Remover da biblioteca?')) return
-    setCarregando(true)
-    try {
-      await removerItem(item.id)
-      await recarregar()
-      if (onAtualizar) onAtualizar()
-    } catch { alert('Erro ao remover!') }
-    setCarregando(false)
-  }
+const handleRemover = async (e) => {
+  e.stopPropagation()
+  setCarregando(true)
+  try {
+    await removerItem(item.id)
+    await recarregar()
+    if (onAtualizar) onAtualizar()
+  } catch { alert('Erro ao remover!') }
+  setCarregando(false)
+}
 
   const handleFavoritar = async (e) => {
     e.stopPropagation()
