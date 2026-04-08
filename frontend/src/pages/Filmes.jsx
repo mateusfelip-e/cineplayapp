@@ -1,13 +1,14 @@
-import Loading from '../components/Loading'
 import { useState, useEffect } from 'react'
 import { getBiblioteca } from '../services/api'
 import Card from '../components/Card'
+import Loading from '../components/Loading'
 import './Paginas.css'
 
 function Filmes() {
   const [biblioteca, setBiblioteca] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [filtro, setFiltro] = useState('todos')
+  const [ordenacao, setOrdenacao] = useState('recente')
 
   const carregar = async () => {
     try {
@@ -19,30 +20,72 @@ function Filmes() {
 
   useEffect(() => { carregar() }, [])
 
-  const filtrados = filtro === 'todos' ? biblioteca : biblioteca.filter(i => i.status === filtro)
+  const filtrados = filtro === 'todos'
+    ? biblioteca
+    : biblioteca.filter(i => i.status === filtro)
 
-  if (carregando) return <div className="carregando">Carregando...</div>
+  const ordenados = [...filtrados].sort((a, b) => {
+    if (ordenacao === 'recente') return new Date(b.criado_em) - new Date(a.criado_em)
+    if (ordenacao === 'antigo') return new Date(a.criado_em) - new Date(b.criado_em)
+    if (ordenacao === 'az') return (a.titulo || '').localeCompare(b.titulo || '')
+    if (ordenacao === 'za') return (b.titulo || '').localeCompare(a.titulo || '')
+    if (ordenacao === 'ano') return (b.ano || 0) - (a.ano || 0)
+    return 0
+  })
+
+  const contagem = {
+    todos: biblioteca.length,
+    quero_ver: biblioteca.filter(i => i.status === 'quero_ver').length,
+    assistindo: biblioteca.filter(i => i.status === 'assistindo').length,
+    assistido: biblioteca.filter(i => i.status === 'assistido').length,
+  }
+
+  if (carregando) return <Loading />
 
   return (
     <div className="pagina">
       <div className="secao">
-        <h2>🎬 Meus Filmes</h2>
-        <div className="filtros">
-          {['todos', 'quero_ver', 'assistindo', 'assistido'].map(f => (
-            <button
-              key={f}
-              className={`btn-filtro ${filtro === f ? 'ativo' : ''}`}
-              onClick={() => setFiltro(f)}
-            >
-              {f === 'todos' ? 'Todos' : f.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            </button>
-          ))}
+        <div className="secao-header">
+          <h2>🎬 Meus Filmes</h2>
+          <span className="contagem-total">{biblioteca.length} {biblioteca.length === 1 ? 'filme' : 'filmes'}</span>
         </div>
-        {filtrados.length === 0 ? (
+
+        <div className="controles-biblioteca">
+          <div className="filtros">
+            {[
+              { key: 'todos', label: 'Todos' },
+              { key: 'quero_ver', label: '🔖 Quero Ver' },
+              { key: 'assistindo', label: '▶ Assistindo' },
+              { key: 'assistido', label: '✓ Assistido' },
+            ].map(f => (
+              <button
+                key={f.key}
+                className={`btn-filtro ${filtro === f.key ? 'ativo' : ''} ${f.key !== 'todos' ? `filtro-${f.key.replace('_', '-')}` : ''}`}
+                onClick={() => setFiltro(f.key)}
+              >
+                {f.label}
+                <span className="filtro-contagem">{contagem[f.key]}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="ordenacao">
+            <span>Ordenar:</span>
+            <select value={ordenacao} onChange={e => setOrdenacao(e.target.value)}>
+              <option value="recente">Mais Recente</option>
+              <option value="antigo">Mais Antigo</option>
+              <option value="az">A → Z</option>
+              <option value="za">Z → A</option>
+              <option value="ano">Ano</option>
+            </select>
+          </div>
+        </div>
+
+        {ordenados.length === 0 ? (
           <p className="sem-resultados">Nenhum filme aqui ainda. Explore e adicione filmes à sua biblioteca!</p>
         ) : (
           <div className="lista-cards">
-            {filtrados.map(item => (
+            {ordenados.map(item => (
               <Card key={item.id} item={item} tipo="filme" daBiblioteca onAtualizar={carregar} />
             ))}
           </div>

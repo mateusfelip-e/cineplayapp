@@ -113,8 +113,10 @@ const handleRemover = async (e) => {
           )}
 
           {item.status && (
-            <span className="card-status">{item.status.replace('_', ' ').toUpperCase()}</span>
-          )}
+  <span className={`card-status status-${item.status.replace('_', '-')}`}>
+    {item.status === 'quero_ver' ? '🔖 Quero Ver' : item.status === 'assistindo' ? '▶ Assistindo' : '✓ Assistido'}
+  </span>
+)}
 
           {hover && !daBiblioteca && !estaAdicionado && (
             <div className="card-overlay">

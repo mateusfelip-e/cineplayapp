@@ -453,3 +453,134 @@
 
   .modal-overlay { align-items: flex-end; }
 }
+
+/* ── CONTAGEM E ORDENAÇÃO ── */
+.secao-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.secao-header h2 {
+  margin-bottom: 0;
+}
+
+.contagem-total {
+  background: #FFE000;
+  color: #000;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.subtitulo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.subtitulo-header h3 {
+  margin-bottom: 0;
+}
+
+.contagem-sub {
+  background: #1e1e1e;
+  color: #aaa;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  border: 1px solid #333;
+}
+
+.controles-biblioteca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.controles-biblioteca .filtros {
+  margin-bottom: 0;
+}
+
+.filtro-contagem {
+  background: rgba(255,255,255,0.15);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+.btn-filtro.ativo .filtro-contagem {
+  background: rgba(0,0,0,0.2);
+}
+
+/* Cores dos filtros */
+.btn-filtro.filtro-quero-ver.ativo {
+  background: #1565C0;
+  border-color: #1565C0;
+  color: #fff;
+}
+
+.btn-filtro.filtro-assistindo.ativo {
+  background: #E65100;
+  border-color: #E65100;
+  color: #fff;
+}
+
+.btn-filtro.filtro-assistido.ativo {
+  background: #2E7D32;
+  border-color: #2E7D32;
+  color: #fff;
+}
+
+.ordenacao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ordenacao span {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.ordenacao select {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border 0.2s;
+}
+
+.ordenacao select:focus {
+  border-color: #FFE000;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .controles-biblioteca {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ordenacao {
+    width: 100%;
+  }
+
+  .ordenacao select {
+    flex: 1;
+  }
+}

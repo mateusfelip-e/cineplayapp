@@ -104,13 +104,26 @@
   position: absolute;
   bottom: 8px;
   left: 8px;
-  background: #FFE000;
-  color: #000;
   font-size: 9px;
   font-weight: 800;
   padding: 3px 6px;
   border-radius: 4px;
   z-index: 2;
+}
+
+.card-status.status-quero-ver {
+  background: #1565C0;
+  color: #fff;
+}
+
+.card-status.status-assistindo {
+  background: #E65100;
+  color: #fff;
+}
+
+.card-status.status-assistido {
+  background: #2E7D32;
+  color: #fff;
 }
 
 .card-info {
