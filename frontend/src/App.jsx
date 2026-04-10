@@ -8,6 +8,7 @@ import Filmes from './pages/Filmes'
 import Series from './pages/Series'
 import Favoritos from './pages/Favoritos'
 import Detalhes from './pages/Detalhes'
+import Login from './pages/Login'
 
 function App() {
   const location = useLocation()
@@ -24,6 +25,7 @@ function App() {
           <Route path="/series" element={<Series />} />
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/detalhes/:tipo/:id" element={<Detalhes />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </PageTransition>
     </>

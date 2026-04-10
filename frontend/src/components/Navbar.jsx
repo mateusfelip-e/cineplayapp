@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { buscarConteudo, adicionarBiblioteca } from '../services/api'
+import { useAuth } from '../AuthContext'
 import Modal from './Modal'
 import './Navbar.css'
 
@@ -13,6 +14,7 @@ function Navbar() {
   const [resultadosMobile, setResultadosMobile] = useState([])
   const location = useLocation()
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
   const handleBusca = async (e) => {
     const valor = e.target.value
@@ -55,7 +57,6 @@ function Navbar() {
   }
 
   const isAtivo = (path) => location.pathname === path
-
   const fecharMenu = () => setMenuAberto(false)
 
   return (
@@ -101,12 +102,26 @@ function Navbar() {
               </div>
             )}
           </div>
-          <button className="btn-adicionar" onClick={() => setModalAberto(true)}>
-            + Adicionar
-          </button>
+
+          {user ? (
+            <>
+              <span className="user-nome">
+                👤 {user.user_metadata?.nome || user.email?.split('@')[0]}
+              </span>
+              <button className="btn-adicionar" onClick={() => setModalAberto(true)}>
+                + Adicionar
+              </button>
+              <button className="btn-logout" onClick={logout} title="Sair">
+                🔓
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-login-nav">
+              🔐 Entrar
+            </Link>
+          )}
         </div>
 
-        {/* Botão hamburguer mobile */}
         <button className="menu-hamburguer" onClick={() => setMenuAberto(!menuAberto)}>
           <span />
           <span />
@@ -130,7 +145,7 @@ function Navbar() {
             value={buscaMobile}
             onChange={handleBuscaMobile}
           />
-          <button onClick={() => {}}>🔍</button>
+          <button>🔍</button>
         </div>
 
         {resultadosMobile.length > 0 && (
@@ -149,9 +164,27 @@ function Navbar() {
           </div>
         )}
 
-        <button className="btn-adicionar-mobile" onClick={() => { setModalAberto(true); fecharMenu() }}>
-          + Adicionar à Biblioteca
-        </button>
+        {user ? (
+          <>
+            <span style={{ color: '#aaa', fontSize: 13, padding: '8px 0' }}>
+              👤 {user.user_metadata?.nome || user.email?.split('@')[0]}
+            </span>
+            <button className="btn-adicionar-mobile" onClick={() => { setModalAberto(true); fecharMenu() }}>
+              + Adicionar à Biblioteca
+            </button>
+            <button
+              className="btn-adicionar-mobile"
+              style={{ background: '#1e1e1e', color: '#fff', marginTop: 8 }}
+              onClick={() => { logout(); fecharMenu() }}
+            >
+              🔓 Sair
+            </button>
+          </>
+        ) : (
+          <Link to="/login" className="btn-adicionar-mobile" onClick={fecharMenu}>
+            🔐 Entrar / Cadastrar
+          </Link>
+        )}
       </div>
 
       {modalAberto && (

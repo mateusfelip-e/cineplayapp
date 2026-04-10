@@ -257,3 +257,47 @@
     display: flex;
   }
 }
+
+.btn-logout {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border 0.2s;
+}
+
+.btn-logout:hover { border-color: #FFE000; }
+
+.btn-login-nav {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-login-nav:hover {
+  border-color: #FFE000;
+  color: #fff;
+}
+
+.user-nome {
+  font-size: 13px;
+  color: #aaa;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

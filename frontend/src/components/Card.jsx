@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adicionarBiblioteca, removerItem, favoritarItem, atualizarItem } from '../services/api'
 import { useBiblioteca } from '../BibliotecaContext'
+import { useAuth } from '../AuthContext'
 import Modal from './Modal'
 import './Card.css'
 
@@ -11,6 +12,7 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
   const [modalEditar, setModalEditar] = useState(false)
   const [animacao, setAnimacao] = useState(null)
   const { jaAdicionado, recarregar } = useBiblioteca()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   const poster = item.poster_path
@@ -30,7 +32,7 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
 
   const handleAdicionar = async (e) => {
     e.stopPropagation()
-    if (estaAdicionado || carregando) return
+    if (estaAdicionado || carregando || !user) return
     setAnimacao('adicionando')
     setCarregando(true)
     try {
@@ -50,19 +52,21 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     setCarregando(false)
   }
 
-const handleRemover = async (e) => {
-  e.stopPropagation()
-  setCarregando(true)
-  try {
-    await removerItem(item.id)
-    await recarregar()
-    if (onAtualizar) onAtualizar()
-  } catch { alert('Erro ao remover!') }
-  setCarregando(false)
-}
+  const handleRemover = async (e) => {
+    e.stopPropagation()
+    if (!user) return
+    setCarregando(true)
+    try {
+      await removerItem(item.id)
+      await recarregar()
+      if (onAtualizar) onAtualizar()
+    } catch { alert('Erro ao remover!') }
+    setCarregando(false)
+  }
 
   const handleFavoritar = async (e) => {
     e.stopPropagation()
+    if (!user) return
     try {
       await favoritarItem(item.id, !item.favorito)
       await recarregar()
@@ -71,6 +75,7 @@ const handleRemover = async (e) => {
   }
 
   const handleSalvarEdicao = async (dados) => {
+    if (!user) return
     try {
       await atualizarItem(item.id, { status: dados.status, favorito: dados.favorito })
       setModalEditar(false)
@@ -104,7 +109,7 @@ const handleRemover = async (e) => {
             </div>
           )}
 
-          {daBiblioteca && (
+          {daBiblioteca && user && (
             <button
               key={item.favorito ? 'fav' : 'nao-fav'}
               className={`btn-favorito ${item.favorito ? 'favoritado' : ''}`}
@@ -113,12 +118,12 @@ const handleRemover = async (e) => {
           )}
 
           {item.status && (
-  <span className={`card-status status-${item.status.replace('_', '-')}`}>
-    {item.status === 'quero_ver' ? '🔖 Quero Ver' : item.status === 'assistindo' ? '▶ Assistindo' : '✓ Assistido'}
-  </span>
-)}
+            <span className={`card-status status-${item.status.replace('_', '-')}`}>
+              {item.status === 'quero_ver' ? '🔖 Quero Ver' : item.status === 'assistindo' ? '▶ Assistindo' : '✓ Assistido'}
+            </span>
+          )}
 
-          {hover && !daBiblioteca && !estaAdicionado && (
+          {hover && !daBiblioteca && !estaAdicionado && user && (
             <div className="card-overlay">
               <button className="btn-overlay" onClick={handleAdicionar} disabled={carregando}>
                 {carregando ? '...' : '+ Adicionar'}
@@ -137,7 +142,7 @@ const handleRemover = async (e) => {
           </div>
         </div>
 
-        {daBiblioteca && (
+        {daBiblioteca && user && (
           <div className="card-acoes">
             <button className="btn-editar" onClick={(e) => { e.stopPropagation(); setModalEditar(true) }}>✏️ Editar</button>
             <button className="btn-remover" onClick={handleRemover} disabled={carregando}>🗑</button>

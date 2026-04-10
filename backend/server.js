@@ -10,11 +10,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Conexão com Supabase
-const supabase = createClient(
+// Supabase Admin (para operações sem autenticação do usuário)
+const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
+
+// Supabase com autenticação do usuário
+const getSupabaseUser = (token) => createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY,
+  { global: { headers: { Authorization: `Bearer ${token}` } } }
+);
+
+// Middleware para extrair token
+const getToken = (req) => {
+  const auth = req.headers.authorization
+  return auth ? auth.replace('Bearer ', '') : null
+}
 
 // Configuração TMDB
 const tmdb = axios.create({
@@ -23,14 +36,16 @@ const tmdb = axios.create({
     Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
     'Content-Type': 'application/json'
   },
-  params: {
-    language: 'pt-BR'
-  }
+  params: { language: 'pt-BR' }
+});
+
+// ─── ROTA PING ─────────────────────────────────────────
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() })
 });
 
 // ─── ROTAS TMDB ───────────────────────────────────────
 
-// Buscar filmes/séries pelo nome
 app.get('/api/buscar', async (req, res) => {
   try {
     const { query, tipo = 'multi', page = 1 } = req.query;
@@ -41,7 +56,6 @@ app.get('/api/buscar', async (req, res) => {
   }
 });
 
-// Filmes populares
 app.get('/api/filmes/populares', async (req, res) => {
   try {
     const { page = 1 } = req.query;
@@ -52,7 +66,6 @@ app.get('/api/filmes/populares', async (req, res) => {
   }
 });
 
-// Séries populares
 app.get('/api/series/populares', async (req, res) => {
   try {
     const { page = 1 } = req.query;
@@ -63,52 +76,45 @@ app.get('/api/series/populares', async (req, res) => {
   }
 });
 
-// Lançamentos de filmes (agora em cartaz)
 app.get('/api/filmes/lancamentos', async (req, res) => {
   try {
-    const response = await tmdb.get('/movie/now_playing')
-    res.json(response.data)
+    const response = await tmdb.get('/movie/now_playing');
+    res.json(response.data);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar lançamentos' })
+    res.status(500).json({ erro: 'Erro ao buscar lançamentos' });
   }
-})
+});
 
-// Lançamentos por ano específico
 app.get('/api/filmes/lancamentos/:ano', async (req, res) => {
   try {
-    const { ano } = req.params
+    const { ano } = req.params;
     const response = await tmdb.get('/discover/movie', {
-      params: {
-        primary_release_year: ano,
-        sort_by: 'popularity.desc',
-        page: 1
-      }
-    })
-    res.json(response.data)
+      params: { primary_release_year: ano, sort_by: 'popularity.desc', page: 1 }
+    });
+    res.json(response.data);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar lançamentos por ano' })
+    res.status(500).json({ erro: 'Erro ao buscar lançamentos por ano' });
   }
-})
+});
 
-// Detalhes de um filme ou série
 app.get('/api/detalhes/:tipo/:id', async (req, res) => {
   try {
     const { tipo, id } = req.params;
     const endpoint = tipo === 'filme' ? `/movie/${id}` : `/tv/${id}`;
-    const response = await tmdb.get(endpoint, {
-      params: { append_to_response: 'credits' }
-    });
+    const response = await tmdb.get(endpoint, { params: { append_to_response: 'credits' } });
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao buscar detalhes' });
   }
 });
 
-// ─── ROTAS BIBLIOTECA (Supabase) ──────────────────────
+// ─── ROTAS BIBLIOTECA ─────────────────────────────────
 
-// Listar toda a biblioteca
 app.get('/api/biblioteca', async (req, res) => {
   try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const supabase = getSupabaseUser(token)
     const { data, error } = await supabase
       .from('biblioteca')
       .select('*')
@@ -120,16 +126,24 @@ app.get('/api/biblioteca', async (req, res) => {
   }
 });
 
-// Adicionar à biblioteca (sem duplicatas)
 app.post('/api/biblioteca', async (req, res) => {
   try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const supabase = getSupabaseUser(token)
+
+    // Pegar user_id do token
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' })
+
     const { tmdb_id, tipo, titulo, ano, poster_url, sinopse, status } = req.body;
 
-    // Verificar se já existe
+    // Verificar duplicata para esse usuário
     const { data: existente } = await supabase
       .from('biblioteca')
       .select('id')
       .eq('tmdb_id', tmdb_id)
+      .eq('user_id', user.id)
       .single();
 
     if (existente) {
@@ -138,20 +152,20 @@ app.post('/api/biblioteca', async (req, res) => {
 
     const { data, error } = await supabase
       .from('biblioteca')
-      .insert([{ tmdb_id, tipo, titulo, ano, poster_url, sinopse, status }])
+      .insert([{ tmdb_id, tipo, titulo, ano, poster_url, sinopse, status, user_id: user.id }])
       .select();
-
     if (error) throw error;
     res.json(data[0]);
   } catch (error) {
-    if (error.jaExiste) return;
     res.status(500).json({ erro: 'Erro ao adicionar à biblioteca' });
   }
 });
 
-// Atualizar item da biblioteca
 app.put('/api/biblioteca/:id', async (req, res) => {
   try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const supabase = getSupabaseUser(token)
     const { id } = req.params;
     const { status, favorito } = req.body;
     const { data, error } = await supabase
@@ -166,9 +180,11 @@ app.put('/api/biblioteca/:id', async (req, res) => {
   }
 });
 
-// Remover da biblioteca
 app.delete('/api/biblioteca/:id', async (req, res) => {
   try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const supabase = getSupabaseUser(token)
     const { id } = req.params;
     const { error } = await supabase
       .from('biblioteca')
@@ -181,9 +197,11 @@ app.delete('/api/biblioteca/:id', async (req, res) => {
   }
 });
 
-// Favoritar/desfavoritar
 app.put('/api/biblioteca/:id/favorito', async (req, res) => {
   try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const supabase = getSupabaseUser(token)
     const { id } = req.params;
     const { favorito } = req.body;
     const { data, error } = await supabase
@@ -198,12 +216,6 @@ app.put('/api/biblioteca/:id/favorito', async (req, res) => {
   }
 });
 
-// Rota de ping para manter servidor acordado
-app.get('/api/ping', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
-
-// ─── INICIAR SERVIDOR ─────────────────────────────────
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Servidor CinePlay rodando na porta ${PORT}`);
