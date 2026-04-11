@@ -5,7 +5,6 @@ import { useBiblioteca } from '../BibliotecaContext'
 import { useAuth } from '../AuthContext'
 import Modal from './Modal'
 import './Card.css'
-import { registrarAtividade } from '../services/api'
 
 function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
   const [hover, setHover] = useState(false)
