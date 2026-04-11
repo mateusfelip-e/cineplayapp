@@ -38,7 +38,7 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     try {
       await adicionarBiblioteca({
         tmdb_id: tmdbId,
-        tipo: tipo === 'movie' ? 'filme' : 'serie',
+        tipo: (tipo === 'movie' || tipo === 'filme') ? 'filme' : 'serie',
         titulo,
         ano: parseInt(ano),
         poster_url: `https://image.tmdb.org/t/p/w300${item.poster_path}`,

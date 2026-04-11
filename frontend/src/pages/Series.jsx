@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { getBiblioteca } from '../services/api'
 import Card from '../components/Card'
 import Loading from '../components/Loading'
-import './Paginas.css'
 import StatsCard from '../components/StatsCard'
+import './Paginas.css'
 
 function Series() {
   const [biblioteca, setBiblioteca] = useState([])
@@ -34,39 +34,34 @@ function Series() {
     return 0
   })
 
-  const contagem = {
-    todos: biblioteca.length,
-    quero_ver: biblioteca.filter(i => i.status === 'quero_ver').length,
-    assistindo: biblioteca.filter(i => i.status === 'assistindo').length,
-    assistido: biblioteca.filter(i => i.status === 'assistido').length,
-  }
-
   if (carregando) return <Loading />
 
   return (
     <div className="pagina">
       <div className="secao">
-        <StatsCard biblioteca={biblioteca} tipo="serie" />
         <div className="secao-header">
           <h2>📺 Minhas Séries</h2>
-          <span className="contagem-total">{biblioteca.length} {biblioteca.length === 1 ? 'série' : 'séries'}</span>
+          <span className="contagem-total">
+            {biblioteca.length} {biblioteca.length === 1 ? 'série' : 'séries'}
+          </span>
         </div>
+
+        <StatsCard biblioteca={biblioteca} tipo="serie" />
 
         <div className="controles-biblioteca">
           <div className="filtros">
             {[
-              { key: 'todos', label: 'Todos' },
-              { key: 'quero_ver', label: '🔖 Quero Ver' },
-              { key: 'assistindo', label: '▶ Assistindo' },
-              { key: 'assistido', label: '✓ Assistido' },
+              { key: 'todos', label: 'Todos', cor: '' },
+              { key: 'quero_ver', label: '🔖 Quero Ver', cor: 'filtro-quero-ver' },
+              { key: 'assistindo', label: '▶ Assistindo', cor: 'filtro-assistindo' },
+              { key: 'assistido', label: '✓ Assistido', cor: 'filtro-assistido' },
             ].map(f => (
               <button
                 key={f.key}
-                className={`btn-filtro ${filtro === f.key ? 'ativo' : ''} ${f.key !== 'todos' ? `filtro-${f.key.replace('_', '-')}` : ''}`}
+                className={`btn-filtro ${filtro === f.key ? `ativo ${f.cor}` : ''}`}
                 onClick={() => setFiltro(f.key)}
               >
                 {f.label}
-                <span className="filtro-contagem">{contagem[f.key]}</span>
               </button>
             ))}
           </div>
@@ -84,7 +79,12 @@ function Series() {
         </div>
 
         {ordenados.length === 0 ? (
-          <p className="sem-resultados">Nenhuma série aqui ainda. Explore e adicione séries à sua biblioteca!</p>
+          <p className="sem-resultados">
+            {filtro === 'todos'
+              ? 'Nenhuma série ainda. Explore e adicione séries à sua biblioteca!'
+              : `Nenhuma série com status "${filtro.replace('_', ' ')}" ainda.`
+            }
+          </p>
         ) : (
           <div className="lista-cards">
             {ordenados.map(item => (
