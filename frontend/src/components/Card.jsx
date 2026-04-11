@@ -65,23 +65,26 @@ const handleAdicionar = async (e) => {
 const handleRemover = async (e) => {
   e.stopPropagation()
   if (!user) return
-  setCarregando(true)
-  try {
-    await removerItem(item.id)
+  setAnimacao('saindo')
+  setTimeout(async () => {
+    setCarregando(true)
     try {
-      await registrarAtividade({
-        tipo: 'removido',
-        descricao: `Removeu "${titulo}" da biblioteca`,
-        poster_url: item.poster_path
-          ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-          : null,
-        tmdb_id: item.tmdb_id || 0
-      })
-    } catch { }
-    await recarregar()
-    if (onAtualizar) onAtualizar()
-  } catch { alert('Erro ao remover!') }
-  setCarregando(false)
+      await removerItem(item.id)
+      try {
+        await registrarAtividade({
+          tipo: 'removido',
+          descricao: `Removeu "${titulo}" da biblioteca`,
+          poster_url: item.poster_path
+            ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+            : null,
+          tmdb_id: item.tmdb_id || 0
+        })
+      } catch { }
+      await recarregar()
+      if (onAtualizar) onAtualizar()
+    } catch { alert('Erro ao remover!') }
+    setCarregando(false)
+  }, 400)
 }
 
   const handleFavoritar = async (e) => {
@@ -107,7 +110,7 @@ const handleRemover = async (e) => {
   return (
     <>
       <div
-        className={`card ${estaAdicionado ? 'card-ja-adicionado' : ''} ${animacao === 'adicionando' ? 'card-anim-adicionar' : ''}`}
+        className={`card ${estaAdicionado ? 'card-ja-adicionado' : ''} ${animacao === 'adicionando' ? 'card-anim-adicionar' : ''} ${animacao === 'saindo' ? 'card-saindo' : ''}`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
