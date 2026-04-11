@@ -31,33 +31,37 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     navigate(`/detalhes/${tipoRota}/${id}`)
   }
 
-  const handleAdicionar = async (e) => {
-    e.stopPropagation()
-    if (estaAdicionado || carregando || !user) return
-    setAnimacao('adicionando')
-    setCarregando(true)
+const handleAdicionar = async (e) => {
+  e.stopPropagation()
+  if (estaAdicionado || carregando || !user) return
+  setAnimacao('adicionando')
+  setCarregando(true)
+  try {
+    await adicionarBiblioteca({
+      tmdb_id: tmdbId,
+      tipo: tipo === 'movie' ? 'filme' : 'serie',
+      titulo,
+      ano: parseInt(ano),
+      poster_url: `https://image.tmdb.org/t/p/w300${item.poster_path}`,
+      sinopse: item.overview || item.sinopse || '',
+      status: 'quero_ver'
+    })
     try {
-      await adicionarBiblioteca({
-        tmdb_id: tmdbId,
-        tipo: (tipo === 'movie' || tipo === 'filme') ? 'filme' : 'serie',
-        titulo,
-        ano: parseInt(ano),
-        poster_url: `https://image.tmdb.org/t/p/w300${item.poster_path}`,
-        sinopse: item.overview || item.sinopse || '',
-        status: 'quero_ver'
-      })
       await registrarAtividade({
-  tipo: 'adicionado',
-  descricao: `Adicionou "${titulo}" à biblioteca`,
-  poster_url: `https://image.tmdb.org/t/p/w300${item.poster_path}`,
-  tmdb_id: tmdbId
-})
-      await recarregar()
-      if (onAtualizar) onAtualizar()
-    } catch { alert('Erro ao adicionar!') }
-    setTimeout(() => setAnimacao(null), 800)
-    setCarregando(false)
-  }
+        tipo: 'adicionado',
+        descricao: `Adicionou "${titulo}" à biblioteca`,
+        poster_url: item.poster_path
+          ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+          : null,
+        tmdb_id: tmdbId
+      })
+    } catch { }
+    await recarregar()
+    if (onAtualizar) onAtualizar()
+  } catch { alert('Erro ao adicionar!') }
+  setTimeout(() => setAnimacao(null), 800)
+  setCarregando(false)
+}
 
 const handleRemover = async (e) => {
   e.stopPropagation()
@@ -65,13 +69,14 @@ const handleRemover = async (e) => {
   setCarregando(true)
   try {
     await removerItem(item.id)
-    // Registrar atividade com try/catch separado para não bloquear a remoção
     try {
       await registrarAtividade({
         tipo: 'removido',
         descricao: `Removeu "${titulo}" da biblioteca`,
-        poster_url: item.poster_url || poster,
-        tmdb_id: item.tmdb_id || item.id || 0
+        poster_url: item.poster_path
+          ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+          : null,
+        tmdb_id: item.tmdb_id || 0
       })
     } catch { }
     await recarregar()
