@@ -4,7 +4,19 @@ import { supabase } from '../supabaseClient';
 const BASE_URL = 'https://cineplay-backend-sdlj.onrender.com/api'
 
 const getApi = async () => {
+  // Tenta renovar a sessão automaticamente
   const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session) {
+    // Tenta refresh do token
+    const { data: refreshData } = await supabase.auth.refreshSession()
+    const token = refreshData?.session?.access_token || ''
+    return axios.create({
+      baseURL: BASE_URL,
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    })
+  }
+
   const token = session?.access_token || ''
   return axios.create({
     baseURL: BASE_URL,
@@ -28,11 +40,7 @@ export const adicionarBiblioteca = async (item) => { const a = await getApi(); r
 export const atualizarItem = async (id, dados) => { const a = await getApi(); return a.put(`/biblioteca/${id}`, dados) }
 export const removerItem = async (id) => { const a = await getApi(); return a.delete(`/biblioteca/${id}`) }
 export const favoritarItem = async (id, favorito) => { const a = await getApi(); return a.put(`/biblioteca/${id}/favorito`, { favorito }) }
-
-export const calcularTempoAssistido = async (itens) => {
-  const a = await getApi()
-  return a.post('/tempo-assistido', { itens })
-}
+export const calcularTempoAssistido = async (itens) => { const a = await getApi(); return a.post('/tempo-assistido', { itens }) }
 
 // Perfil
 export const getPerfil = async () => { const a = await getApi(); return a.get('/perfil') }
