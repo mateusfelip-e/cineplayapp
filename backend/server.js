@@ -8,9 +8,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
-app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({ limit: '10mb', extended: true }))
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Supabase Admin
 const supabaseAdmin = createClient(
@@ -328,11 +327,31 @@ app.put('/api/perfil', async (req, res) => {
 
     const { nome, foto_url, banner_url } = req.body
 
-    const { data, error } = await supabaseAdmin
+    // Verificar se já existe perfil
+    const { data: existente } = await supabaseAdmin
       .from('perfil')
-      .upsert({ user_id: user.id, nome, foto_url, banner_url, atualizado_em: new Date() })
-      .select()
+      .select('id')
+      .eq('user_id', user.id)
       .single()
+
+    let data, error
+
+    if (existente) {
+      // Atualizar existente
+      ;({ data, error } = await supabaseAdmin
+        .from('perfil')
+        .update({ nome, foto_url, banner_url, atualizado_em: new Date() })
+        .eq('user_id', user.id)
+        .select()
+        .single())
+    } else {
+      // Criar novo
+      ;({ data, error } = await supabaseAdmin
+        .from('perfil')
+        .insert([{ user_id: user.id, nome, foto_url, banner_url }])
+        .select()
+        .single())
+    }
 
     if (error) throw error
     res.json(data)

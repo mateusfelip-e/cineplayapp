@@ -55,26 +55,41 @@ function Perfil() {
     carregar()
   }, [user])
 
-  const handleFotoUpload = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setFotoPreview(ev.target.result)
-      setFotoUrl(ev.target.result)
-    }
-    reader.readAsDataURL(file)
+const comprimirImagem = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          let { width, height } = img
+          if (width > maxWidth) { height = height * maxWidth / width; width = maxWidth }
+          if (height > maxHeight) { width = width * maxHeight / height; height = maxHeight }
+          canvas.width = width
+          canvas.height = height
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', 0.7))
+        }
+        img.src = e.target.result
+      }
+      reader.readAsDataURL(file)
+    })
   }
 
-  const handleBannerUpload = (e) => {
+  const handleFotoUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setBannerPreview(ev.target.result)
-      setBannerUrl(ev.target.result)
-    }
-    reader.readAsDataURL(file)
+    const comprimida = await comprimirImagem(file, 300, 300)
+    setFotoPreview(comprimida)
+    setFotoUrl(comprimida)
+  }
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const comprimida = await comprimirImagem(file, 1200, 400)
+    setBannerPreview(comprimida)
+    setBannerUrl(comprimida)
   }
 
   const handleSalvar = async () => {
