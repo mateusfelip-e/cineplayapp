@@ -14,7 +14,7 @@ function Navbar() {
   const [resultadosMobile, setResultadosMobile] = useState([])
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, nomePerfil } = useAuth()
 
   const handleBusca = async (e) => {
     const valor = e.target.value
@@ -105,9 +105,9 @@ function Navbar() {
 
           {user ? (
             <>
-              <Link to="/perfil" className="user-nome">
-                👤 {user.user_metadata?.nome || user.email?.split('@')[0]}
-              </Link>
+             <Link to="/perfil" className="user-nome">
+  👤 {nomePerfil || user.email?.split('@')[0]}
+</Link>
               <button className="btn-adicionar" onClick={() => setModalAberto(true)}>
                 + Adicionar
               </button>

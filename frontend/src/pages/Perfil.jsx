@@ -6,7 +6,7 @@ import Loading from '../components/Loading'
 import './Perfil.css'
 
 function Perfil() {
-  const { user, logout } = useAuth()
+  const { user, logout, atualizarNomePerfil } = useAuth()
   const navigate = useNavigate()
   const [perfil, setPerfil] = useState(null)
   const [atividades, setAtividades] = useState([])
@@ -15,7 +15,6 @@ function Perfil() {
   const [editando, setEditando] = useState(false)
   const [salvando, setSalvando] = useState(false)
 
-  // Campos de edição
   const [nome, setNome] = useState('')
   const [fotoUrl, setFotoUrl] = useState('')
   const [bannerUrl, setBannerUrl] = useState('')
@@ -55,7 +54,7 @@ function Perfil() {
     carregar()
   }, [user])
 
-const comprimirImagem = (file, maxWidth, maxHeight) => {
+  const comprimirImagem = (file, maxWidth, maxHeight, qualidade = 0.92) => {
     return new Promise((resolve) => {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -68,7 +67,7 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
           canvas.width = width
           canvas.height = height
           canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-          resolve(canvas.toDataURL('image/jpeg', 0.7))
+          resolve(canvas.toDataURL('image/jpeg', qualidade))
         }
         img.src = e.target.result
       }
@@ -79,7 +78,7 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
   const handleFotoUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    const comprimida = await comprimirImagem(file, 300, 300)
+    const comprimida = await comprimirImagem(file, 300, 300, 0.92)
     setFotoPreview(comprimida)
     setFotoUrl(comprimida)
   }
@@ -87,7 +86,7 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
   const handleBannerUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    const comprimida = await comprimirImagem(file, 1200, 400)
+    const comprimida = await comprimirImagem(file, 1920, 600, 0.92)
     setBannerPreview(comprimida)
     setBannerUrl(comprimida)
   }
@@ -97,6 +96,7 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
     try {
       const res = await atualizarPerfil({ nome, foto_url: fotoUrl, banner_url: bannerUrl })
       setPerfil(res.data)
+      atualizarNomePerfil(nome)
       setEditando(false)
     } catch { alert('Erro ao salvar perfil!') }
     setSalvando(false)
@@ -123,12 +123,11 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
 
   return (
     <div className="perfil-pagina">
-      {/* Banner */}
       <div
         className="perfil-banner"
-        style={{ backgroundImage: bannerUrl ? `url(${perfil?.banner_url || bannerUrl})` : 'none' }}
+        style={{ backgroundImage: perfil?.banner_url ? `url(${perfil.banner_url})` : 'none' }}
       >
-        {!perfil?.banner_url && !bannerPreview && (
+        {!perfil?.banner_url && (
           <div className="perfil-banner-vazio">
             <span>Sem banner — clique em Editar para adicionar</span>
           </div>
@@ -136,7 +135,6 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
         <div className="perfil-banner-overlay" />
       </div>
 
-      {/* Info principal */}
       <div className="perfil-info-wrapper">
         <div className="perfil-foto-wrapper">
           <img
@@ -162,7 +160,6 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="perfil-stats">
         <div className="perfil-stat">
           <span className="perfil-stat-valor">{stats.totalFilmes}</span>
@@ -190,7 +187,6 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
         </div>
       </div>
 
-      {/* Atividades */}
       <div className="perfil-secao">
         <h2>📋 Histórico de Atividades</h2>
         {atividades.length === 0 ? (
@@ -213,7 +209,6 @@ const comprimirImagem = (file, maxWidth, maxHeight) => {
         )}
       </div>
 
-      {/* Modal de Edição */}
       {editando && (
         <div className="perfil-modal-overlay" onClick={() => setEditando(false)}>
           <div className="perfil-modal" onClick={e => e.stopPropagation()}>
