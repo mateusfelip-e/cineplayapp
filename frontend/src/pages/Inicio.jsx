@@ -17,7 +17,7 @@ function Inicio() {
   const navigate = useNavigate()
   const intervalRef = useRef(null)
 
- useEffect(() => {
+useEffect(() => {
   const carregar = async () => {
     try {
       const hoje = new Date().toISOString().slice(0, 10)
@@ -34,16 +34,23 @@ function Inicio() {
         localStorage.setItem(cacheKey, JSON.stringify(lancamentosData))
       }
 
-      const [resFilmes, resSeries, resBib] = await Promise.all([
+      const [resFilmes, resSeries] = await Promise.all([
         getFilmesPopulares(),
-        getSeriesPopulares(),
-        getBiblioteca()
+        getSeriesPopulares()
       ])
 
       setLancamentos(lancamentosData.slice(0, 8))
       setFilmes(resFilmes.data.results || [])
       setSeries(resSeries.data.results || [])
-      setUltimosAdicionados(resBib.data.slice(0, 10))
+
+      // Só busca biblioteca se estiver logado
+      try {
+        const resBib = await getBiblioteca()
+        setUltimosAdicionados(resBib.data.slice(0, 10))
+      } catch {
+        setUltimosAdicionados([])
+      }
+
     } catch (err) { console.error(err) }
     setCarregando(false)
   }

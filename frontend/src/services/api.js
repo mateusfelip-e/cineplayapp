@@ -28,3 +28,8 @@ export const adicionarBiblioteca = async (item) => { const a = await getApi(); r
 export const atualizarItem = async (id, dados) => { const a = await getApi(); return a.put(`/biblioteca/${id}`, dados) }
 export const removerItem = async (id) => { const a = await getApi(); return a.delete(`/biblioteca/${id}`) }
 export const favoritarItem = async (id, favorito) => { const a = await getApi(); return a.put(`/biblioteca/${id}/favorito`, { favorito }) }
+
+export const calcularTempoAssistido = async (itens) => {
+  const a = await getApi()
+  return a.post('/tempo-assistido', { itens })
+}

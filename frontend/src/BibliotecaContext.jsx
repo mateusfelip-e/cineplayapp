@@ -7,14 +7,19 @@ const BibliotecaContext = createContext()
 export function BibliotecaProvider({ children }) {
   const [biblioteca, setBiblioteca] = useState([])
 
-  const recarregar = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setBiblioteca([]); return }
-      const res = await getBiblioteca()
-      setBiblioteca(res.data || [])
-    } catch { setBiblioteca([]) }
-  }, [])
+const recarregar = useCallback(async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      setBiblioteca([])
+      return
+    }
+    const res = await getBiblioteca()
+    setBiblioteca(res.data || [])
+  } catch {
+    setBiblioteca([])
+  }
+}, [])
 
   useEffect(() => {
     recarregar()

@@ -3,6 +3,7 @@ import { getBiblioteca } from '../services/api'
 import Card from '../components/Card'
 import Loading from '../components/Loading'
 import './Paginas.css'
+import StatsCard from '../components/StatsCard'
 
 function Filmes() {
   const [biblioteca, setBiblioteca] = useState([])
@@ -45,6 +46,7 @@ function Filmes() {
   return (
     <div className="pagina">
       <div className="secao">
+        <StatsCard biblioteca={biblioteca} tipo="filme" />
         <div className="secao-header">
           <h2>🎬 Meus Filmes</h2>
           <span className="contagem-total">{biblioteca.length} {biblioteca.length === 1 ? 'filme' : 'filmes'}</span>

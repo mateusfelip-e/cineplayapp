@@ -10,23 +10,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Supabase Admin (para operações sem autenticação do usuário)
+// Supabase Admin
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
-);
-
-// Supabase com autenticação do usuário
-const getSupabaseUser = (token) => createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY,
-  { global: { headers: { Authorization: `Bearer ${token}` } } }
 );
 
 // Middleware para extrair token
 const getToken = (req) => {
   const auth = req.headers.authorization
   return auth ? auth.replace('Bearer ', '') : null
+}
+
+// Pegar usuário pelo token
+const getUser = async (token) => {
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
+  if (error || !user) return null
+  return user
 }
 
 // Configuração TMDB
@@ -110,111 +110,175 @@ app.get('/api/detalhes/:tipo/:id', async (req, res) => {
 
 // ─── ROTAS BIBLIOTECA ─────────────────────────────────
 
+// Listar biblioteca do usuário
 app.get('/api/biblioteca', async (req, res) => {
   try {
     const token = getToken(req)
     if (!token) return res.status(401).json({ erro: 'Não autenticado' })
-    const supabase = getSupabaseUser(token)
-    const { data, error } = await supabase
+
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { data, error } = await supabaseAdmin
       .from('biblioteca')
       .select('*')
-      .order('criado_em', { ascending: false });
-    if (error) throw error;
-    res.json(data);
+      .eq('user_id', user.id)
+      .order('criado_em', { ascending: false })
+
+    if (error) throw error
+    res.json(data)
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar biblioteca' });
+    console.error('GET biblioteca:', error)
+    res.status(500).json({ erro: 'Erro ao buscar biblioteca' })
   }
 });
 
+// Adicionar à biblioteca
 app.post('/api/biblioteca', async (req, res) => {
   try {
     const token = getToken(req)
     if (!token) return res.status(401).json({ erro: 'Não autenticado' })
-    const supabase = getSupabaseUser(token)
 
-    // Pegar user_id do token
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return res.status(401).json({ erro: 'Usuário não encontrado' })
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
 
-    const { tmdb_id, tipo, titulo, ano, poster_url, sinopse, status } = req.body;
+    const { tmdb_id, tipo, titulo, ano, poster_url, sinopse, status } = req.body
 
-    // Verificar duplicata para esse usuário
-    const { data: existente } = await supabase
+    // Verificar duplicata
+    const { data: existente } = await supabaseAdmin
       .from('biblioteca')
       .select('id')
       .eq('tmdb_id', tmdb_id)
       .eq('user_id', user.id)
-      .single();
+      .single()
 
     if (existente) {
-      return res.status(409).json({ erro: 'Item já está na biblioteca', jaExiste: true });
+      return res.status(409).json({ erro: 'Item já está na biblioteca', jaExiste: true })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('biblioteca')
       .insert([{ tmdb_id, tipo, titulo, ano, poster_url, sinopse, status, user_id: user.id }])
-      .select();
-    if (error) throw error;
-    res.json(data[0]);
+      .select()
+
+    if (error) throw error
+    res.json(data[0])
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao adicionar à biblioteca' });
+    console.error('POST biblioteca:', error)
+    res.status(500).json({ erro: 'Erro ao adicionar à biblioteca' })
   }
 });
 
+// Atualizar item
 app.put('/api/biblioteca/:id', async (req, res) => {
   try {
     const token = getToken(req)
     if (!token) return res.status(401).json({ erro: 'Não autenticado' })
-    const supabase = getSupabaseUser(token)
-    const { id } = req.params;
-    const { status, favorito } = req.body;
-    const { data, error } = await supabase
+
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { id } = req.params
+    const { status, favorito } = req.body
+
+    const { data, error } = await supabaseAdmin
       .from('biblioteca')
       .update({ status, favorito, atualizado_em: new Date() })
       .eq('id', id)
-      .select();
-    if (error) throw error;
-    res.json(data[0]);
+      .eq('user_id', user.id)
+      .select()
+
+    if (error) throw error
+    res.json(data[0])
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao atualizar item' });
+    console.error('PUT biblioteca:', error)
+    res.status(500).json({ erro: 'Erro ao atualizar item' })
   }
 });
 
+// Remover item
 app.delete('/api/biblioteca/:id', async (req, res) => {
   try {
     const token = getToken(req)
     if (!token) return res.status(401).json({ erro: 'Não autenticado' })
-    const supabase = getSupabaseUser(token)
-    const { id } = req.params;
-    const { error } = await supabase
+
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { id } = req.params
+
+    const { error } = await supabaseAdmin
       .from('biblioteca')
       .delete()
-      .eq('id', id);
-    if (error) throw error;
-    res.json({ mensagem: 'Item removido com sucesso' });
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+    res.json({ mensagem: 'Item removido com sucesso' })
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao remover item' });
+    console.error('DELETE biblioteca:', error)
+    res.status(500).json({ erro: 'Erro ao remover item' })
   }
 });
 
+// Favoritar item
 app.put('/api/biblioteca/:id/favorito', async (req, res) => {
   try {
     const token = getToken(req)
     if (!token) return res.status(401).json({ erro: 'Não autenticado' })
-    const supabase = getSupabaseUser(token)
-    const { id } = req.params;
-    const { favorito } = req.body;
-    const { data, error } = await supabase
+
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { id } = req.params
+    const { favorito } = req.body
+
+    const { data, error } = await supabaseAdmin
       .from('biblioteca')
       .update({ favorito, atualizado_em: new Date() })
       .eq('id', id)
-      .select();
-    if (error) throw error;
-    res.json(data[0]);
+      .eq('user_id', user.id)
+      .select()
+
+    if (error) throw error
+    res.json(data[0])
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao favoritar item' });
+    console.error('PUT favorito:', error)
+    res.status(500).json({ erro: 'Erro ao favoritar item' })
   }
 });
+
+// Calcular tempo gasto assistindo
+app.post('/api/tempo-assistido', async (req, res) => {
+  try {
+    const { itens } = req.body
+    let totalMinutos = 0
+
+    for (const item of itens) {
+      try {
+        if (item.tipo === 'filme') {
+          const response = await tmdb.get(`/movie/${item.tmdb_id}`)
+          totalMinutos += response.data.runtime || 90
+        } else {
+          const response = await tmdb.get(`/tv/${item.tmdb_id}`)
+          const episodios = response.data.number_of_episodes || 0
+          const duracao = response.data.episode_run_time?.[0] || 40
+          totalMinutos += episodios * duracao
+        }
+      } catch {
+        totalMinutos += item.tipo === 'filme' ? 90 : 600
+      }
+    }
+
+    const minutos = totalMinutos % 60
+    const horas = Math.floor(totalMinutos / 60) % 24
+    const dias = Math.floor(totalMinutos / 60 / 24)
+
+    res.json({ totalMinutos, minutos, horas, dias })
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao calcular tempo' })
+  }
+})
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
