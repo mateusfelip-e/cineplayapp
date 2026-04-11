@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { adicionarBiblioteca, removerItem, favoritarItem, atualizarItem } from '../services/api'
+import { adicionarBiblioteca, removerItem, favoritarItem, atualizarItem, registrarAtividade } from '../services/api'
 import { useBiblioteca } from '../BibliotecaContext'
 import { useAuth } from '../AuthContext'
 import Modal from './Modal'
@@ -59,23 +59,26 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     setCarregando(false)
   }
 
-  const handleRemover = async (e) => {
-    e.stopPropagation()
-    if (!user) return
-    setCarregando(true)
+const handleRemover = async (e) => {
+  e.stopPropagation()
+  if (!user) return
+  setCarregando(true)
+  try {
+    await removerItem(item.id)
+    // Registrar atividade com try/catch separado para não bloquear a remoção
     try {
-      await removerItem(item.id)
       await registrarAtividade({
-  tipo: 'removido',
-  descricao: `Removeu "${titulo}" da biblioteca`,
-  poster_url: poster,
-  tmdb_id: tmdbId
-})
-      await recarregar()
-      if (onAtualizar) onAtualizar()
-    } catch { alert('Erro ao remover!') }
-    setCarregando(false)
-  }
+        tipo: 'removido',
+        descricao: `Removeu "${titulo}" da biblioteca`,
+        poster_url: item.poster_url || poster,
+        tmdb_id: item.tmdb_id || item.id || 0
+      })
+    } catch { }
+    await recarregar()
+    if (onAtualizar) onAtualizar()
+  } catch { alert('Erro ao remover!') }
+  setCarregando(false)
+}
 
   const handleFavoritar = async (e) => {
     e.stopPropagation()
