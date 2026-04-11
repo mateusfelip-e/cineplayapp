@@ -1,0 +1,371 @@
+.perfil-pagina {
+  min-height: 100vh;
+}
+
+/* Banner */
+.perfil-banner {
+  width: 100%;
+  height: 280px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.perfil-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, #0a0a0a 100%);
+}
+
+.perfil-banner-vazio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Info Principal */
+.perfil-info-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 0 48px;
+  margin-top: -60px;
+  position: relative;
+  z-index: 2;
+  flex-wrap: wrap;
+}
+
+.perfil-foto-wrapper {
+  flex-shrink: 0;
+}
+
+.perfil-foto {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FFE000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.perfil-info {
+  flex: 1;
+  padding-bottom: 8px;
+}
+
+.perfil-nome {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.perfil-email {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.perfil-desde {
+  font-size: 12px;
+  color: #555;
+}
+
+.perfil-acoes {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.btn-editar-perfil {
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-editar-perfil:hover { opacity: 0.85; }
+
+.btn-logout-perfil {
+  background: #1e1e1e;
+  color: #aaa;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout-perfil:hover { border-color: #e53935; color: #e53935; }
+
+/* Stats */
+.perfil-stats {
+  display: flex;
+  gap: 16px;
+  padding: 32px 48px 0;
+  flex-wrap: wrap;
+}
+
+.perfil-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #141414;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px 28px;
+  min-width: 100px;
+  flex: 1;
+  transition: border 0.2s, transform 0.2s;
+}
+
+.perfil-stat:hover {
+  border-color: #FFE000;
+  transform: translateY(-2px);
+}
+
+.perfil-stat-valor {
+  font-size: 32px;
+  font-weight: 800;
+  color: #FFE000;
+}
+
+.perfil-stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Atividades */
+.perfil-secao {
+  padding: 32px 48px;
+}
+
+.perfil-secao h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.atividades-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.atividade-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border 0.2s;
+}
+
+.atividade-item:hover { border-color: #333; }
+
+.atividade-poster {
+  width: 36px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.atividade-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.atividade-icone { font-size: 18px; }
+
+.atividade-descricao {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.atividade-data {
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* Modal Edição */
+.perfil-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.perfil-modal {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 16px;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.perfil-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.perfil-modal-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.perfil-modal-header button {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.perfil-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.perfil-modal-body label {
+  font-size: 13px;
+  color: #888;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.perfil-modal-body input {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+.perfil-modal-body input:focus { border-color: #FFE000; }
+
+.perfil-upload-group {
+  display: flex;
+  gap: 8px;
+}
+
+.perfil-upload-group input { flex: 1; }
+
+.perfil-upload-group button {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border 0.2s;
+}
+
+.perfil-upload-group button:hover { border-color: #FFE000; }
+
+.perfil-preview-foto {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFE000;
+}
+
+.perfil-preview-banner {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #333;
+}
+
+.perfil-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-cancelar {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-salvar {
+  background: #FFE000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .perfil-banner { height: 180px; }
+
+  .perfil-info-wrapper {
+    padding: 0 16px;
+    margin-top: -40px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .perfil-foto { width: 90px; height: 90px; }
+  .perfil-nome { font-size: 22px; }
+
+  .perfil-acoes { width: 100%; }
+  .btn-editar-perfil, .btn-logout-perfil { flex: 1; text-align: center; }
+
+  .perfil-stats { padding: 20px 16px 0; gap: 8px; }
+  .perfil-stat { padding: 14px; min-width: 80px; }
+  .perfil-stat-valor { font-size: 24px; }
+
+  .perfil-secao { padding: 20px 16px; }
+
+  .perfil-modal {
+    width: 95vw;
+    border-radius: 16px 16px 0 0;
+    position: fixed;
+    bottom: 0;
+  }
+}

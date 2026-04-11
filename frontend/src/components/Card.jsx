@@ -5,6 +5,7 @@ import { useBiblioteca } from '../BibliotecaContext'
 import { useAuth } from '../AuthContext'
 import Modal from './Modal'
 import './Card.css'
+import { registrarAtividade } from '../services/api'
 
 function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
   const [hover, setHover] = useState(false)
@@ -45,6 +46,12 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
         sinopse: item.overview || item.sinopse || '',
         status: 'quero_ver'
       })
+      await registrarAtividade({
+  tipo: 'adicionado',
+  descricao: `Adicionou "${titulo}" à biblioteca`,
+  poster_url: `https://image.tmdb.org/t/p/w300${item.poster_path}`,
+  tmdb_id: tmdbId
+})
       await recarregar()
       if (onAtualizar) onAtualizar()
     } catch { alert('Erro ao adicionar!') }
@@ -58,6 +65,12 @@ function Card({ item, tipo, daBiblioteca = false, onAtualizar }) {
     setCarregando(true)
     try {
       await removerItem(item.id)
+      await registrarAtividade({
+  tipo: 'removido',
+  descricao: `Removeu "${titulo}" da biblioteca`,
+  poster_url: poster,
+  tmdb_id: tmdbId
+})
       await recarregar()
       if (onAtualizar) onAtualizar()
     } catch { alert('Erro ao remover!') }

@@ -105,9 +105,9 @@ function Navbar() {
 
           {user ? (
             <>
-              <span className="user-nome">
+              <Link to="/perfil" className="user-nome">
                 👤 {user.user_metadata?.nome || user.email?.split('@')[0]}
-              </span>
+              </Link>
               <button className="btn-adicionar" onClick={() => setModalAberto(true)}>
                 + Adicionar
               </button>
@@ -137,6 +137,7 @@ function Navbar() {
         <Link to="/filmes" className={isAtivo('/filmes') ? 'ativo' : ''} onClick={fecharMenu}>Filmes</Link>
         <Link to="/series" className={isAtivo('/series') ? 'ativo' : ''} onClick={fecharMenu}>Séries</Link>
         <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''} onClick={fecharMenu}>♡ Favoritos</Link>
+        <Link to="/perfil" className={isAtivo('/perfil') ? 'ativo' : ''} onClick={fecharMenu}>👤 Perfil</Link>
 
         <div className="busca-mobile">
           <input
@@ -166,9 +167,6 @@ function Navbar() {
 
         {user ? (
           <>
-            <span style={{ color: '#aaa', fontSize: 13, padding: '8px 0' }}>
-              👤 {user.user_metadata?.nome || user.email?.split('@')[0]}
-            </span>
             <button className="btn-adicionar-mobile" onClick={() => { setModalAberto(true); fecharMenu() }}>
               + Adicionar à Biblioteca
             </button>
@@ -182,7 +180,7 @@ function Navbar() {
           </>
         ) : (
           <Link to="/login" className="btn-adicionar-mobile" onClick={fecharMenu}>
-            🔐 Entrar / Cadastrar
+            🔐 Entrar
           </Link>
         )}
       </div>

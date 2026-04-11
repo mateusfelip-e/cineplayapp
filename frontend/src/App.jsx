@@ -9,6 +9,7 @@ import Series from './pages/Series'
 import Favoritos from './pages/Favoritos'
 import Detalhes from './pages/Detalhes'
 import Login from './pages/Login'
+import Perfil from './pages/Perfil'
 
 function App() {
   const location = useLocation()
@@ -26,6 +27,7 @@ function App() {
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/detalhes/:tipo/:id" element={<Detalhes />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/perfil" element={<Perfil />} />
         </Routes>
       </PageTransition>
     </>

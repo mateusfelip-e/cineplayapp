@@ -33,3 +33,11 @@ export const calcularTempoAssistido = async (itens) => {
   const a = await getApi()
   return a.post('/tempo-assistido', { itens })
 }
+
+// Perfil
+export const getPerfil = async () => { const a = await getApi(); return a.get('/perfil') }
+export const atualizarPerfil = async (dados) => { const a = await getApi(); return a.put('/perfil', dados) }
+
+// Atividades
+export const getAtividades = async () => { const a = await getApi(); return a.get('/atividades') }
+export const registrarAtividade = async (dados) => { const a = await getApi(); return a.post('/atividades', dados) }

@@ -9,6 +9,8 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 // Supabase Admin
 const supabaseAdmin = createClient(
@@ -277,6 +279,110 @@ app.post('/api/tempo-assistido', async (req, res) => {
     res.json({ totalMinutos, minutos, horas, dias })
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao calcular tempo' })
+  }
+})
+
+// ─── ROTAS PERFIL ─────────────────────────────────────
+
+// Buscar perfil
+app.get('/api/perfil', async (req, res) => {
+  try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { data, error } = await supabaseAdmin
+      .from('perfil')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
+    if (error && error.code !== 'PGRST116') throw error
+
+    // Se não tem perfil, cria um
+    if (!data) {
+      const { data: novo, error: errNovo } = await supabaseAdmin
+        .from('perfil')
+        .insert([{ user_id: user.id, nome: user.email?.split('@')[0] }])
+        .select()
+        .single()
+      if (errNovo) throw errNovo
+      return res.json(novo)
+    }
+
+    res.json(data)
+  } catch (error) {
+    console.error('GET perfil:', error)
+    res.status(500).json({ erro: 'Erro ao buscar perfil' })
+  }
+})
+
+// Atualizar perfil
+app.put('/api/perfil', async (req, res) => {
+  try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { nome, foto_url, banner_url } = req.body
+
+    const { data, error } = await supabaseAdmin
+      .from('perfil')
+      .upsert({ user_id: user.id, nome, foto_url, banner_url, atualizado_em: new Date() })
+      .select()
+      .single()
+
+    if (error) throw error
+    res.json(data)
+  } catch (error) {
+    console.error('PUT perfil:', error)
+    res.status(500).json({ erro: 'Erro ao atualizar perfil' })
+  }
+})
+
+// Buscar atividades
+app.get('/api/atividades', async (req, res) => {
+  try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { data, error } = await supabaseAdmin
+      .from('atividades')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('criado_em', { ascending: false })
+      .limit(20)
+
+    if (error) throw error
+    res.json(data)
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar atividades' })
+  }
+})
+
+// Registrar atividade
+app.post('/api/atividades', async (req, res) => {
+  try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { tipo, descricao, poster_url, tmdb_id } = req.body
+
+    const { data, error } = await supabaseAdmin
+      .from('atividades')
+      .insert([{ user_id: user.id, tipo, descricao, poster_url, tmdb_id }])
+      .select()
+
+    if (error) throw error
+    res.json(data[0])
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao registrar atividade' })
   }
 })
 
