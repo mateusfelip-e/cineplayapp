@@ -584,3 +584,26 @@
     flex: 1;
   }
 }
+
+.secao-titulo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.secao-titulo-wrapper h2 {
+  margin-bottom: 0;
+}
+
+.secao-badge {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

@@ -49,3 +49,6 @@ export const atualizarPerfil = async (dados) => { const a = await getApi(); retu
 // Atividades
 export const getAtividades = async () => { const a = await getApi(); return a.get('/atividades') }
 export const registrarAtividade = async (dados) => { const a = await getApi(); return a.post('/atividades', dados) }
+
+export const getSeriesTendencias = () => api.get('/series/tendencias')
+export const getEpisodiosRecentes = () => api.get('/series/episodios-recentes')

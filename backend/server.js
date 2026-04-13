@@ -405,6 +405,28 @@ app.post('/api/atividades', async (req, res) => {
   }
 })
 
+// Séries em tendência na semana
+app.get('/api/series/tendencias', async (req, res) => {
+  try {
+    const response = await tmdb.get('/trending/tv/week')
+    res.json(response.data)
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar tendências' })
+  }
+})
+
+// Últimos episódios lançados na semana
+app.get('/api/series/episodios-recentes', async (req, res) => {
+  try {
+    const response = await tmdb.get('/tv/on_the_air', {
+      params: { page: 1 }
+    })
+    res.json(response.data)
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar episódios recentes' })
+  }
+})
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Servidor CinePlay rodando na porta ${PORT}`);

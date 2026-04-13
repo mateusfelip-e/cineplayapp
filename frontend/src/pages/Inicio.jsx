@@ -1,15 +1,23 @@
-import Loading from '../components/Loading'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getLancamentos, getFilmesPopulares, getSeriesPopulares, adicionarBiblioteca, getBiblioteca } from '../services/api'
+import {
+  getLancamentos,
+  getFilmesPopulares,
+  getSeriesTendencias,
+  getEpisodiosRecentes,
+  adicionarBiblioteca,
+  getBiblioteca
+} from '../services/api'
 import Card from '../components/Card'
 import CardSlider from '../components/CardSlider'
+import Loading from '../components/Loading'
 import './Paginas.css'
 
 function Inicio() {
   const [lancamentos, setLancamentos] = useState([])
   const [filmes, setFilmes] = useState([])
-  const [series, setSeries] = useState([])
+  const [tendencias, setTendencias] = useState([])
+  const [episodiosRecentes, setEpisodiosRecentes] = useState([])
   const [ultimosAdicionados, setUltimosAdicionados] = useState([])
   const [indiceAtual, setIndiceAtual] = useState(0)
   const [carregando, setCarregando] = useState(true)
@@ -17,45 +25,46 @@ function Inicio() {
   const navigate = useNavigate()
   const intervalRef = useRef(null)
 
-useEffect(() => {
-  const carregar = async () => {
-    try {
-      const hoje = new Date().toISOString().slice(0, 10)
-      const cacheKey = `lancamentos_${hoje}`
-      const cached = localStorage.getItem(cacheKey)
-
-      let lancamentosData
-      if (cached) {
-        lancamentosData = JSON.parse(cached)
-      } else {
-        localStorage.clear()
-        const resLanc = await getLancamentos()
-        lancamentosData = resLanc.data.results || []
-        localStorage.setItem(cacheKey, JSON.stringify(lancamentosData))
-      }
-
-      const [resFilmes, resSeries] = await Promise.all([
-        getFilmesPopulares(),
-        getSeriesPopulares()
-      ])
-
-      setLancamentos(lancamentosData.slice(0, 8))
-      setFilmes(resFilmes.data.results || [])
-      setSeries(resSeries.data.results || [])
-
-      // Só busca biblioteca se estiver logado
+  useEffect(() => {
+    const carregar = async () => {
       try {
-        const resBib = await getBiblioteca()
-        setUltimosAdicionados(resBib.data.slice(0, 10))
-      } catch {
-        setUltimosAdicionados([])
-      }
+        const hoje = new Date().toISOString().slice(0, 10)
+        const cacheKey = `lancamentos_${hoje}`
+        const cached = localStorage.getItem(cacheKey)
 
-    } catch (err) { console.error(err) }
-    setCarregando(false)
-  }
-  carregar()
-}, [])
+        let lancamentosData
+        if (cached) {
+          lancamentosData = JSON.parse(cached)
+        } else {
+          localStorage.clear()
+          const resLanc = await getLancamentos()
+          lancamentosData = resLanc.data.results || []
+          localStorage.setItem(cacheKey, JSON.stringify(lancamentosData))
+        }
+
+        const [resFilmes, resTendencias, resEpisodios] = await Promise.all([
+          getFilmesPopulares(),
+          getSeriesTendencias(),
+          getEpisodiosRecentes()
+        ])
+
+        setLancamentos(lancamentosData.slice(0, 8))
+        setFilmes(resFilmes.data.results || [])
+        setTendencias(resTendencias.data.results || [])
+        setEpisodiosRecentes(resEpisodios.data.results || [])
+
+        try {
+          const resBib = await getBiblioteca()
+          setUltimosAdicionados(resBib.data.slice(0, 10))
+        } catch {
+          setUltimosAdicionados([])
+        }
+
+      } catch (err) { console.error(err) }
+      setCarregando(false)
+    }
+    carregar()
+  }, [])
 
   useEffect(() => {
     if (lancamentos.length === 0) return
@@ -141,19 +150,37 @@ useEffect(() => {
       )}
 
       <div className="secao">
-        <h2>🎬 Filmes Populares</h2>
+        <div className="secao-titulo-wrapper">
+          <h2>📺 Últimos Episódios da Semana</h2>
+          <span className="secao-badge">Séries</span>
+        </div>
         <CardSlider>
-          {filmes.map(filme => (
-            <Card key={filme.id} item={filme} tipo="movie" />
+          {episodiosRecentes.map(serie => (
+            <Card key={serie.id} item={serie} tipo="tv" />
           ))}
         </CardSlider>
       </div>
 
       <div className="secao">
-        <h2>📺 Séries Populares</h2>
+        <div className="secao-titulo-wrapper">
+          <h2>🔥 Tendências da Semana</h2>
+          <span className="secao-badge">Séries</span>
+        </div>
         <CardSlider>
-          {series.map(serie => (
+          {tendencias.map(serie => (
             <Card key={serie.id} item={serie} tipo="tv" />
+          ))}
+        </CardSlider>
+      </div>
+
+      <div className="secao">
+        <div className="secao-titulo-wrapper">
+          <h2>🎬 Filmes Populares</h2>
+          <span className="secao-badge">Filmes</span>
+        </div>
+        <CardSlider>
+          {filmes.map(filme => (
+            <Card key={filme.id} item={filme} tipo="movie" />
           ))}
         </CardSlider>
       </div>
