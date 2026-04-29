@@ -1,5 +1,5 @@
 .card {
-  width: 160px;
+  width: 200px;
   flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.2s;
@@ -22,8 +22,8 @@
 }
 
 .card-poster {
-  width: 160px;
-  height: 240px;
+  width: 200px;
+  height: 300px;
   object-fit: cover;
   display: block;
   transition: filter 0.3s;

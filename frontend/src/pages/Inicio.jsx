@@ -149,17 +149,17 @@ function Inicio() {
         </div>
       )}
 
-      <div className="secao">
-        <div className="secao-titulo-wrapper">
-          <h2>📺 Últimos Episódios da Semana</h2>
-          <span className="secao-badge">Séries</span>
-        </div>
-        <CardSlider>
-          {episodiosRecentes.map(serie => (
-            <Card key={serie.id} item={serie} tipo="tv" />
-          ))}
-        </CardSlider>
-      </div>
+<div className="secao">
+  <div className="secao-titulo-wrapper">
+    <h2>📺 Últimos Episódios da Semana</h2>
+    <span className="secao-badge">Séries</span>
+  </div>
+  <CardSlider>
+    {episodiosRecentes.map(serie => (
+      <Card key={serie.id} item={serie} tipo="tv" />
+    ))}
+  </CardSlider>
+</div>
 
       <div className="secao">
         <div className="secao-titulo-wrapper">

@@ -151,8 +151,8 @@
 /* ── LISTA CARDS ── */
 .lista-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 
 /* ── BUSCA EXPLORAR ── */
@@ -398,10 +398,10 @@
   .secao { padding: 20px 16px; }
   .secao h2 { font-size: 16px; }
 
-  .lista-cards {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-  }
+.lista-cards {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
 
   .filtros { gap: 6px; }
   .btn-filtro { padding: 6px 12px; font-size: 12px; }
