@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext'
 import { getPerfil, atualizarPerfil, getAtividades, getBiblioteca } from '../services/api'
 import Loading from '../components/Loading'
+import { useAnimacaoStats } from '../useAnimacoes'
 import './Perfil.css'
 
 function Perfil() {
+  const paginaRef = useRef(null)
   const { user, logout, atualizarNomePerfil } = useAuth()
   const navigate = useNavigate()
   const [perfil, setPerfil] = useState(null)
@@ -23,6 +25,8 @@ function Perfil() {
 
   const fotoRef = useRef()
   const bannerRef = useRef()
+
+  useAnimacaoStats(paginaRef)
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -122,7 +126,7 @@ function Perfil() {
     : ''
 
   return (
-    <div className="perfil-pagina">
+    <div className="perfil-pagina" ref={paginaRef}>
       <div
         className="perfil-banner"
         style={{ backgroundImage: perfil?.banner_url ? `url(${perfil.banner_url})` : 'none' }}

@@ -11,9 +11,11 @@ import {
 import Card from '../components/Card'
 import CardSlider from '../components/CardSlider'
 import Loading from '../components/Loading'
+import { useAnimacaoSecao, useAnimacaoTitulos, useAnimacaoCards, useAnimacaoHero } from '../useAnimacoes'
 import './Paginas.css'
 
 function Inicio() {
+  const [fadingOut, setFadingOut] = useState(false)
   const [lancamentos, setLancamentos] = useState([])
   const [filmes, setFilmes] = useState([])
   const [tendencias, setTendencias] = useState([])
@@ -24,6 +26,12 @@ function Inicio() {
   const [adicionado, setAdicionado] = useState(false)
   const navigate = useNavigate()
   const intervalRef = useRef(null)
+  const paginaRef = useRef(null)
+
+  useAnimacaoHero(paginaRef)
+  useAnimacaoSecao(paginaRef)
+  useAnimacaoTitulos(paginaRef)
+  useAnimacaoCards(paginaRef)
 
   useEffect(() => {
     const carregar = async () => {
@@ -66,14 +74,20 @@ function Inicio() {
     carregar()
   }, [])
 
-  useEffect(() => {
-    if (lancamentos.length === 0) return
-    intervalRef.current = setInterval(() => {
+useEffect(() => {
+  if (lancamentos.length === 0) return
+
+  intervalRef.current = setInterval(() => {
+    setFadingOut(true)
+    setTimeout(() => {
       setIndiceAtual(i => (i + 1) % lancamentos.length)
       setAdicionado(false)
-    }, 6000)
-    return () => clearInterval(intervalRef.current)
-  }, [lancamentos])
+      setFadingOut(false)
+    }, 400)
+  }, 6000)
+
+  return () => clearInterval(intervalRef.current)
+}, [lancamentos])
 
   const handleAdicionar = async () => {
     const destaque = lancamentos[indiceAtual]
@@ -97,14 +111,14 @@ function Inicio() {
   const destaque = lancamentos[indiceAtual]
 
   return (
-    <div className="pagina">
+    <div className="pagina" ref={paginaRef}>
       {destaque && destaque.backdrop_path && (
         <div
           className="hero"
           style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${destaque.backdrop_path})` }}
         >
           <div className="hero-overlay">
-            <div className="hero-conteudo">
+            <div className={`hero-conteudo ${fadingOut ? 'hero-fade-out' : 'hero-fade-in'}`}>
               <div className="hero-badge">🎬 Em Cartaz</div>
               <h1>{destaque.title || destaque.name}</h1>
               <p className="hero-ano">{(destaque.release_date || '').slice(0, 4)}</p>
@@ -149,17 +163,17 @@ function Inicio() {
         </div>
       )}
 
-<div className="secao">
-  <div className="secao-titulo-wrapper">
-    <h2>📺 Últimos Episódios da Semana</h2>
-    <span className="secao-badge">Séries</span>
-  </div>
-  <CardSlider>
-    {episodiosRecentes.map(serie => (
-      <Card key={serie.id} item={serie} tipo="tv" />
-    ))}
-  </CardSlider>
-</div>
+      <div className="secao">
+        <div className="secao-titulo-wrapper">
+          <h2>📺 Últimos Episódios da Semana</h2>
+          <span className="secao-badge">Séries</span>
+        </div>
+        <CardSlider>
+          {episodiosRecentes.map(serie => (
+            <Card key={serie.id} item={serie} tipo="tv" />
+          ))}
+        </CardSlider>
+      </div>
 
       <div className="secao">
         <div className="secao-titulo-wrapper">

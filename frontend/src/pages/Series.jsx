@@ -1,15 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getBiblioteca } from '../services/api'
 import Card from '../components/Card'
 import Loading from '../components/Loading'
 import StatsCard from '../components/StatsCard'
+import { useAnimacaoSecao, useAnimacaoStats, useAnimacaoCards } from '../useAnimacoes'
 import './Paginas.css'
 
 function Series() {
+  const paginaRef = useRef(null)
   const [biblioteca, setBiblioteca] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [filtro, setFiltro] = useState('todos')
   const [ordenacao, setOrdenacao] = useState('recente')
+
+  useAnimacaoSecao(paginaRef)
+  useAnimacaoStats(paginaRef)
+  useAnimacaoCards(paginaRef)
 
   const carregar = async () => {
     try {
@@ -37,7 +43,7 @@ function Series() {
   if (carregando) return <Loading />
 
   return (
-    <div className="pagina">
+    <div className="pagina" ref={paginaRef}>
       <div className="secao">
         <div className="secao-header">
           <h2>📺 Minhas Séries</h2>
