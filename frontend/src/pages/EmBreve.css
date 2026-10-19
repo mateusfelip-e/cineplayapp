@@ -1,0 +1,135 @@
+.embreve-subtitulo {
+  color: #888;
+  font-size: 13px;
+  margin: -8px 0 20px;
+}
+
+.embreve-link {
+  color: #FFE000;
+  font-weight: 700;
+}
+
+.embreve-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px 20px;
+}
+
+.embreve-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.embreve-card:hover {
+  transform: translateY(-4px);
+}
+
+.embreve-img-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1a1a1a;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+}
+
+.embreve-card:hover .embreve-img-wrap {
+  border-color: #FFE000;
+}
+
+.embreve-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.embreve-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.embreve-badge.urgente {
+  background: #FFE000;
+  color: #000;
+}
+
+.embreve-status {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.embreve-status.status-assistindo { background: #E65100; }
+.embreve-status.status-assistido { background: #2E7D32; }
+
+.embreve-titulo {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.embreve-ep {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #FFE000;
+  font-weight: 600;
+}
+
+.embreve-data {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.embreve-sem-data-titulo {
+  margin-top: 40px;
+}
+
+.embreve-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.embreve-chip {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.embreve-chip:hover {
+  border-color: #FFE000;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .embreve-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

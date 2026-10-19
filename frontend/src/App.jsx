@@ -4,6 +4,7 @@ import PageTransition from './components/PageTransition'
 import Inicio from './pages/Inicio'
 import Explorar from './pages/Explorar'
 import Lancamentos from './pages/Lancamentos'
+import EmBreve from './pages/EmBreve'
 import Filmes from './pages/Filmes'
 import Series from './pages/Series'
 import Favoritos from './pages/Favoritos'
@@ -22,6 +23,7 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/explorar" element={<Explorar />} />
           <Route path="/lancamentos" element={<Lancamentos />} />
+          <Route path="/em-breve" element={<EmBreve />} />
           <Route path="/filmes" element={<Filmes />} />
           <Route path="/series" element={<Series />} />
           <Route path="/favoritos" element={<Favoritos />} />

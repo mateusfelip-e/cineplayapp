@@ -7,7 +7,7 @@
 body {
   background-color: #0a0a0a;
   color: #ffffff;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
@@ -41,4 +41,8 @@ html { scroll-behavior: smooth; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }

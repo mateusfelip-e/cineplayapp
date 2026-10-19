@@ -427,6 +427,69 @@ app.get('/api/series/episodios-recentes', async (req, res) => {
   }
 })
 
+// Próximos episódios das séries acompanhadas
+const STATUS_ACOMPANHADOS = ['assistindo', 'assistido']
+
+app.get('/api/em-breve', async (req, res) => {
+  try {
+    const token = getToken(req)
+    if (!token) return res.status(401).json({ erro: 'Não autenticado' })
+
+    const user = await getUser(token)
+    if (!user) return res.status(401).json({ erro: 'Usuário inválido' })
+
+    const { data: series, error } = await supabaseAdmin
+      .from('biblioteca')
+      .select('tmdb_id, titulo, status')
+      .eq('user_id', user.id)
+      .eq('tipo', 'serie')
+      .in('status', STATUS_ACOMPANHADOS)
+
+    if (error) throw error
+
+    const detalhes = await Promise.all(
+      series.map(async (s) => {
+        try {
+          const r = await tmdb.get(`/tv/${s.tmdb_id}`)
+          const d = r.data
+          const prox = d.next_episode_to_air
+          return {
+            tmdb_id: s.tmdb_id,
+            titulo: d.name || s.titulo,
+            status: s.status,
+            status_serie: d.status,
+            backdrop_path: d.backdrop_path,
+            poster_path: d.poster_path,
+            proximo_episodio: prox ? {
+              temporada: prox.season_number,
+              numero: prox.episode_number,
+              nome: prox.name,
+              data: prox.air_date,
+              duracao: prox.runtime
+            } : null
+          }
+        } catch {
+          return null
+        }
+      })
+    )
+
+    const validos = detalhes.filter(Boolean)
+
+    const proximos = validos
+      .filter(s => s.proximo_episodio && s.proximo_episodio.data)
+      .sort((a, b) => a.proximo_episodio.data.localeCompare(b.proximo_episodio.data))
+
+    const semData = validos
+      .filter(s => !s.proximo_episodio && !['Ended', 'Canceled'].includes(s.status_serie))
+
+    res.json({ proximos, sem_data: semData })
+  } catch (error) {
+    console.error('GET em-breve:', error)
+    res.status(500).json({ erro: 'Erro ao buscar próximos episódios' })
+  }
+})
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Servidor CinePlay rodando na porta ${PORT}`);

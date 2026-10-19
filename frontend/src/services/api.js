@@ -52,3 +52,4 @@ export const registrarAtividade = async (dados) => { const a = await getApi(); r
 
 export const getSeriesTendencias = () => api.get('/series/tendencias')
 export const getEpisodiosRecentes = () => api.get('/series/episodios-recentes')
+export const getEmBreve = async () => { const a = await getApi(); return a.get('/em-breve') }

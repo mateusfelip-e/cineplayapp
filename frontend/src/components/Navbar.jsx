@@ -71,6 +71,7 @@ function Navbar() {
             <Link to="/" className={isAtivo('/') ? 'ativo' : ''}>Início</Link>
             <Link to="/explorar" className={isAtivo('/explorar') ? 'ativo' : ''}>Explorar</Link>
             <Link to="/lancamentos" className={isAtivo('/lancamentos') ? 'ativo' : ''}>Lançamentos</Link>
+            <Link to="/em-breve" className={isAtivo('/em-breve') ? 'ativo' : ''}>Em Breve</Link>
             <Link to="/filmes" className={isAtivo('/filmes') ? 'ativo' : ''}>Filmes</Link>
             <Link to="/series" className={isAtivo('/series') ? 'ativo' : ''}>Séries</Link>
             <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''}>♡ Favoritos</Link>
@@ -134,6 +135,7 @@ function Navbar() {
         <Link to="/" className={isAtivo('/') ? 'ativo' : ''} onClick={fecharMenu}>Início</Link>
         <Link to="/explorar" className={isAtivo('/explorar') ? 'ativo' : ''} onClick={fecharMenu}>Explorar</Link>
         <Link to="/lancamentos" className={isAtivo('/lancamentos') ? 'ativo' : ''} onClick={fecharMenu}>Lançamentos</Link>
+        <Link to="/em-breve" className={isAtivo('/em-breve') ? 'ativo' : ''} onClick={fecharMenu}>Em Breve</Link>
         <Link to="/filmes" className={isAtivo('/filmes') ? 'ativo' : ''} onClick={fecharMenu}>Filmes</Link>
         <Link to="/series" className={isAtivo('/series') ? 'ativo' : ''} onClick={fecharMenu}>Séries</Link>
         <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''} onClick={fecharMenu}>♡ Favoritos</Link>
