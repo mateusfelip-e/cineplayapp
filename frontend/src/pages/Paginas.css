@@ -384,7 +384,8 @@
   .hero-sinopse {
     font-size: 13px;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+      -webkit-line-clamp: 2;
+  line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: 16px;
@@ -628,4 +629,60 @@
 @keyframes heroFadeOut {
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 0; transform: translateY(-8px); }
+}
+
+.paginacao-completa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.paginacao-completa .paginacao {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.paginacao-completa .btn-pagina:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.paginacao-reticencias {
+  color: #666;
+  padding: 0 2px;
+}
+
+.paginacao-pular {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 13px;
+}
+
+.paginacao-pular input {
+  width: 80px;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  text-align: center;
+  outline: none;
+}
+
+.paginacao-pular input:focus {
+  border-color: #FFE000;
+}
+
+.paginacao-pular input::-webkit-outer-spin-button,
+.paginacao-pular input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

@@ -59,6 +59,8 @@ function Navbar() {
   const isAtivo = (path) => location.pathname === path
   const fecharMenu = () => setMenuAberto(false)
 
+  const nomeExibido = nomePerfil || user?.user_metadata?.nome || user?.email?.split('@')[0] || ''
+
   return (
     <>
       <nav className="navbar">
@@ -106,14 +108,20 @@ function Navbar() {
 
           {user ? (
             <>
-             <Link to="/perfil" className="user-nome">
-  👤 {nomePerfil || user.email?.split('@')[0]}
-</Link>
+              <Link to="/perfil" className="nav-usuario" title="Meu perfil">
+                <span className="nav-avatar">{nomeExibido.charAt(0).toUpperCase()}</span>
+                <span className="nav-usuario-nome">{nomeExibido}</span>
+              </Link>
               <button className="btn-adicionar" onClick={() => setModalAberto(true)}>
                 + Adicionar
               </button>
-              <button className="btn-logout" onClick={logout} title="Sair">
-                🔓
+              <button className="btn-sair" onClick={logout} title="Sair" aria-label="Sair">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
               </button>
             </>
           ) : (
@@ -139,7 +147,11 @@ function Navbar() {
         <Link to="/filmes" className={isAtivo('/filmes') ? 'ativo' : ''} onClick={fecharMenu}>Filmes</Link>
         <Link to="/series" className={isAtivo('/series') ? 'ativo' : ''} onClick={fecharMenu}>Séries</Link>
         <Link to="/favoritos" className={isAtivo('/favoritos') ? 'ativo' : ''} onClick={fecharMenu}>♡ Favoritos</Link>
-        <Link to="/perfil" className={isAtivo('/perfil') ? 'ativo' : ''} onClick={fecharMenu}>👤 Perfil</Link>
+        {user && (
+          <Link to="/perfil" className={isAtivo('/perfil') ? 'ativo' : ''} onClick={fecharMenu}>
+            👤 {nomeExibido || 'Perfil'}
+          </Link>
+        )}
 
         <div className="busca-mobile">
           <input
@@ -177,12 +189,12 @@ function Navbar() {
               style={{ background: '#1e1e1e', color: '#fff', marginTop: 8 }}
               onClick={() => { logout(); fecharMenu() }}
             >
-              🔓 Sair
+              Sair
             </button>
           </>
         ) : (
           <Link to="/login" className="btn-adicionar-mobile" onClick={fecharMenu}>
-            🔐 Entrar
+            Entrar
           </Link>
         )}
       </div>
